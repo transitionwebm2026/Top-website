@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BadgeCheck, Gauge, Layers, Ruler, Tag } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
-import { waHref } from '@/lib/site';
+import { useSite } from '@/components/providers/SiteProvider';
 import MagneticButton from '@/components/ui/MagneticButton';
 import { WhatsAppIcon } from '@/components/ui/BrandIcons';
 import ProductVisual from './ProductVisual';
@@ -18,6 +18,7 @@ const item = {
 /** Full spec-sheet view of a product line (rendered inside <Modal>). */
 export default function ProductDetail({ product }) {
   const { t, pick } = useLang();
+  const { waHref } = useSite();
   const [page, setPage] = useState(0);
   const tp = t.products;
 

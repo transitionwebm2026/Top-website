@@ -14,7 +14,7 @@ import ShapeIcon from './ShapeIcon';
  * what ProductPageView preloads. A spinner sits behind the image until it loads.
  */
 export default function ProductVisual({ src, alt = '', icon = 'pipe', sizes = '400px', className = '', imgClassName = 'p-4', hover = true, note = true }) {
-  const { pick } = useLang();
+  const { t } = useLang();
   const [loadedSrc, setLoadedSrc] = useState(null);
 
   if (src) {
@@ -45,7 +45,7 @@ export default function ProductVisual({ src, alt = '', icon = 'pipe', sizes = '4
       <ShapeIcon name={icon} className={`relative h-1/2 max-h-28 w-1/2 max-w-28 ${hover ? 'transition-transform duration-700 group-hover:scale-110' : ''}`} />
       {note && (
         <span className="absolute bottom-2.5 text-[0.65rem] font-semibold text-white/35">
-          {pick({ ar: 'الصورة قريباً', en: 'Photo coming soon' })}
+          {t.common.photoSoon}
         </span>
       )}
     </div>

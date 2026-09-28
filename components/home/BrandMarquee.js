@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { useLang } from '@/components/providers/LanguageProvider';
-import { brands } from '@/lib/data/company';
 import SectionHeading from '@/components/ui/SectionHeading';
 
 function Row({ items, reverse }) {
@@ -18,7 +17,7 @@ function Row({ items, reverse }) {
       >
         {[...items, ...items].map((b, i) => (
           <div
-            key={`${b.name}-${i}`}
+            key={`${b.id}-${i}`}
             className="glass group/logo flex h-28 w-52 shrink-0 items-center justify-center rounded-2xl p-3 transition duration-500 hover:-translate-y-1 hover:border-gold/80 hover:shadow-[0_0_30px_-6px_rgba(205,176,116,0.6)]"
             aria-hidden={i >= items.length}
           >
@@ -32,16 +31,21 @@ function Row({ items, reverse }) {
   );
 }
 
-export default function BrandMarquee() {
-  const { t } = useLang();
+/** Partner logos marquee. `content` = `partners_marquee` heading; `partners` from partners_and_projects. */
+export default function BrandMarquee({ content, partners = [] }) {
+  const { pick } = useLang();
+  const heading = pick(content);
+  const logos = partners.filter((p) => p.logo);
+  if (!heading || !logos.length) return null;
+
   return (
     <section className="relative overflow-hidden py-24">
       <div className="px-4">
-        <SectionHeading eyebrow={t.home.brandsEyebrow} title={t.home.brandsTitle} />
+        <SectionHeading eyebrow={heading.eyebrow} title={heading.title} desc={heading.description} />
       </div>
       <div className="mt-14 flex flex-col gap-4">
-        <Row items={brands} />
-        <Row items={[...brands].reverse()} reverse />
+        <Row items={logos} />
+        <Row items={[...logos].reverse()} reverse />
       </div>
     </section>
   );

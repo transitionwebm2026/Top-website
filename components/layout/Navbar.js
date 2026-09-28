@@ -6,23 +6,26 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, Phone, X } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
-import { navItems } from '@/lib/i18n';
-import { site, telHref } from '@/lib/site';
+import { useSite } from '@/components/providers/SiteProvider';
 import { FacebookIcon, InstagramIcon, TikTokIcon } from '@/components/ui/BrandIcons';
 import Logo from '@/components/ui/Logo';
 
-const socials = [
-  { href: site.social.facebook, Icon: FacebookIcon, label: 'Facebook' },
-  { href: site.social.instagram, Icon: InstagramIcon, label: 'Instagram' },
-  { href: site.social.tiktok, Icon: TikTokIcon, label: 'TikTok' },
-];
+/** Social links from site settings; empty URLs are hidden. */
+export function useSocials() {
+  const { social } = useSite();
+  return [
+    { href: social.facebook, Icon: FacebookIcon, label: 'Facebook' },
+    { href: social.instagram, Icon: InstagramIcon, label: 'Instagram' },
+    { href: social.tiktok, Icon: TikTokIcon, label: 'TikTok' },
+  ].filter((s) => s.href);
+}
 
 function LangToggle() {
   const { lang, toggle, t } = useLang();
   return (
     <button
       onClick={toggle}
-      aria-label={t.langLabel}
+      aria-label={t.common.langLabel}
       className="glass relative flex h-9 w-[3.9rem] shrink-0 items-center rounded-full p-1 text-[0.7rem] font-bold sm:h-10 sm:w-[4.5rem] sm:text-xs"
     >
       <motion.span
@@ -32,12 +35,13 @@ function LangToggle() {
         style={{ insetInlineStart: 4 }}
       />
       <span className="relative z-10 grid w-7 place-items-center text-emerald-ink sm:w-8">{lang === 'ar' ? 'ع' : 'EN'}</span>
-      <span className="relative z-10 grid w-7 place-items-center text-gold-light/80 sm:w-8">{t.langSwitch}</span>
+      <span className="relative z-10 grid w-7 place-items-center text-gold-light/80 sm:w-8">{t.common.langSwitch}</span>
     </button>
   );
 }
 
 function SocialIcons({ className = '' }) {
+  const socials = useSocials();
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {socials.map(({ href, Icon, label }) => (
@@ -58,7 +62,8 @@ function SocialIcons({ className = '' }) {
 }
 
 export default function Navbar() {
-  const { t, dir } = useLang();
+  const { t, dir, pick } = useLang();
+  const { nav: navItems, callNumber, telHref } = useSite();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -93,7 +98,7 @@ export default function Navbar() {
 
           <ul className="hidden items-center gap-1 lg:flex">
             {navItems.map((item) => (
-              <li key={item.key}>
+              <li key={item.href}>
                 <Link
                   href={item.href}
                   className={`relative isolate block rounded-full px-4 py-2 text-[0.92rem] font-semibold transition-colors ${
@@ -107,7 +112,7 @@ export default function Navbar() {
                       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
-                  {t.nav[item.key]}
+                  {pick(item.label)}
                 </Link>
               </li>
             ))}
@@ -120,12 +125,12 @@ export default function Navbar() {
               className="glass hidden items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold text-gold-light transition hover:border-gold hover:text-gold md:flex"
             >
               <Phone size={16} />
-              <span dir="ltr">{site.phones[0]}</span>
+              <span dir="ltr">{callNumber}</span>
             </a>
             <LangToggle />
             <button
               onClick={() => setOpen(true)}
-              aria-label={t.menu}
+              aria-label={t.common.menu}
               className="glass grid h-9 w-9 shrink-0 place-items-center rounded-full text-gold sm:h-10 sm:w-10 lg:hidden"
             >
               <Menu size={20} />
@@ -155,7 +160,7 @@ export default function Navbar() {
                 <Logo size={40} />
                 <button
                   onClick={() => setOpen(false)}
-                  aria-label={t.close}
+                  aria-label={t.common.close}
                   className="glass grid h-10 w-10 place-items-center rounded-full text-gold"
                 >
                   <X size={20} />
@@ -164,7 +169,7 @@ export default function Navbar() {
               <ul className="flex flex-col gap-2">
                 {navItems.map((item, i) => (
                   <motion.li
-                    key={item.key}
+                    key={item.href}
                     initial={{ opacity: 0, x: dir === 'rtl' ? 30 : -30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 + i * 0.06 }}
@@ -175,7 +180,7 @@ export default function Navbar() {
                         isActive(item.href) ? 'bg-gradient-to-br from-gold-light to-gold text-emerald-ink' : 'text-white/85 hover:bg-white/5'
                       }`}
                     >
-                      {t.nav[item.key]}
+                      {pick(item.label)}
                     </Link>
                   </motion.li>
                 ))}
@@ -183,7 +188,7 @@ export default function Navbar() {
               <div className="mt-auto flex flex-col gap-4">
                 <a href={telHref()} className="glass flex items-center justify-center gap-2 rounded-full px-4 py-3 font-bold text-gold-light">
                   <Phone size={18} />
-                  <span dir="ltr">{site.phones[0]}</span>
+                  <span dir="ltr">{callNumber}</span>
                 </a>
                 <SocialIcons className="justify-center" />
               </div>

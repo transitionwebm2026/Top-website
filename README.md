@@ -1,48 +1,91 @@
 # TOP POWER – MEP Engineering Supplies
 
-Bilingual (Arabic RTL default / English LTR) website built with Next.js 15 (App Router), Tailwind CSS v4 and Framer Motion.
+Bilingual (Arabic RTL default / English LTR) website with a Supabase-backed headless CMS and admin dashboard.
+Built with Next.js 15 (App Router), Supabase (Postgres, Auth, Storage), Tailwind CSS v4 and Framer Motion.
+
+All text, media, products, articles and settings live in Supabase — nothing is hard-coded in the frontend.
 
 ## Run
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
-npm run build && npm start
+cp .env.example .env.local   # fill in the Supabase URL + publishable key
+npm run dev                  # http://localhost:3000  ·  dashboard: /admin
 ```
 
-## Where to edit
+## Supabase setup (once per project)
 
-| What | File |
+1. **Schema** — run `supabase/migrations/20260928000000_cms_schema.sql` in the Supabase SQL Editor
+   (or `supabase db push`). Creates the tables, RLS policies, helper functions and the public `media` bucket.
+2. **Default content** — run `supabase/seed.sql`. Idempotent: re-running never overwrites dashboard edits.
+3. **First admin** — create the user in *Authentication → Users → Add user* (auto-confirm), then:
+   ```sql
+   update public.profiles set role = 'admin' where email = 'you@example.com';
+   ```
+4. **Recommended** — turn off *Allow new users to sign up* (Authentication → Sign In / Providers).
+   New sign-ups get the `viewer` role and cannot edit anything, but there is no reason to allow them.
+
+## Admin dashboard (`/admin`)
+
+| Section | Manages |
 |---|---|
-| Phone numbers, WhatsApp, email, social links, address | `lib/site.js` |
-| UI text (AR / EN) | `lib/i18n.js` |
-| Product lines → sub-types → brands / shapes / sizes | `lib/data/products.js` |
-| Product photos | `public/images/catalog/` (set `image` on a group or brand) |
-| Datasheets (PDF) | `public/datasheets/` (set `datasheet: '/datasheets/x.pdf'`) |
-| Brands, projects, certifications, timeline, documents | `lib/data/company.js` |
-| Blog articles | `lib/data/blog.js` |
-| Colors, glass styles, animations | `app/globals.css` (`@theme`) |
-| Contact form backend | `app/api/contact/route.js` (currently logs; connect email/CRM) |
+| Dashboard Overview | Content counts, latest enquiries, quick actions |
+| Home Page | Hero, about summary, bento grid categories, partner logos, key projects, pre-footer CTA |
+| About Us | Hero, history timeline, mission & goals, certification badges, legal documents (image + PDF) |
+| Market / Products | Category CRUD, product items (brands, shapes, sizes, datasheets, gallery), catalog hero |
+| Blogs | Markdown articles in AR/EN, hero vs grid placement, drafts & scheduled dates |
+| Contact & Enquiries | Contact-form inbox (status, notes, reply), phones/email/address/map, contact page copy |
+| Global Settings | Navbar & footer links, WhatsApp/call buttons, social links, logos & theme colours, SEO, UI translations |
+
+Every page editor also has an **SEO** tab (per-page title, description and share image).
+
+**Security.** `middleware.js` redirects any `/admin` or `/dashboard` request without a valid session to
+`/admin/login`; `app/admin/(dashboard)/layout.js` then requires `profiles.role = 'admin'`; and RLS enforces the
+same rule on every query. Visitors can only read published rows and insert contact messages.
+
+## How content flows
+
+```
+Supabase tables ──► lib/cms/queries.js (server, cached, tag "cms") ──► lib/cms/mappers.js ──► components
+         ▲                                                                   (both languages as { ar, en })
+         └── dashboard (lib/admin/hooks.js, browser client + RLS) ── save ──► revalidateTag('cms')
+```
+
+- Both languages are loaded together, so the language toggle is instant; `pick(value)` selects the current one.
+- Page sections store `content_ar` / `content_en` JSON documents. Their fields are defined once in
+  `lib/cms/schema.js`, which drives both the dashboard forms and the renderers.
+- Static UI text (buttons, labels, messages) comes from the `translations` table (`t.cta.contact`, …).
+- Dashboard saves purge the cache immediately; otherwise content refreshes every 5 minutes.
+- Uploads go to the public `media` bucket; `next.config.mjs` allows those URLs in `next/image`.
 
 ## Structure
 
 ```
-app/                 routes: / , /about, /products, /blog, /contact, /api/contact
-components/layout/   Navbar, Footer, FloatingActions, PreFooterCTA, SiteShell
-components/ui/       Hero, GlassCard (cursor spotlight), Modal, MagneticButton, Reveal, Counter
-components/home|about|products|blog|contact/   page sections
-public/images/       logo, products, brands, projects, documents, brochure pages
-scripts/             one-off image-cropping scripts used to extract assets from the profile PDF
+app/(site)/            public routes: / , /about, /products, /products/[id], /blog, /contact
+app/admin/             /admin/login and the dashboard ((dashboard)/…); actions.js = cache revalidation
+app/api/contact/       contact form → contact_submissions
+middleware.js          auth guard for /admin and /dashboard
+lib/supabase/          browser, server (cookie session) and public (cacheable) clients
+lib/cms/               queries, mappers, section schemas
+lib/admin/             dashboard hooks (CRUD, uploads) and table field schemas
+components/admin/      dashboard shell, form fields, section/collection editors
+components/…           public site sections
+supabase/migrations/   schema + RLS
+supabase/seed.sql      default content, generated by scripts/generate-seed.mjs from supabase/seed-data/
 ```
 
 ## Products
 
-Five lines, each with its own page: `/products/pipes`, `/products/fittings`, `/products/valves`,
-`/products/sprinklers`, `/products/cabinets`. Link straight to a sub-type tab with a hash, e.g.
-`/products/fittings#grooved` or `/products/valves#tamper`. Items without a photo show a line-art icon
-until `image` is set.
+Five categories (`/products/pipes`, `/fittings`, `/valves`, `/sprinklers`, `/cabinets`), each with product
+items shown as tabs. Deep-link a tab with a hash: `/products/fittings#grooved`. Items without a photo show a
+line-art icon until an image is uploaded.
 
 ## Language
 
-The language is stored in the `tp-lang` cookie, so the server renders the chosen language, direction
-and page titles on first paint. Pages are therefore rendered per request (dynamic).
+The language is stored in the `tp-lang` cookie, so the server renders the chosen language, direction and page
+titles on first paint.
+
+The dashboard is bilingual too (Arabic RTL by default, English LTR) and shares the same cookie: the EN/ع switch in
+the dashboard header (and on the login page) changes the whole interface, the language list rows are shown in,
+and the language "View live site" opens in. Interface strings live in `lib/admin/i18n.js`; field labels in the
+schemas (`lib/cms/schema.js`, `lib/admin/collections.js`) are `{ en, ar }` objects.

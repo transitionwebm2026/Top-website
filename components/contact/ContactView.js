@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2, Clock, Loader2, Mail, MapPin, Phone, Send } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
-import { site, telHref } from '@/lib/site';
+import { useSite } from '@/components/providers/SiteProvider';
 import GlassCard from '@/components/ui/GlassCard';
 import { Reveal } from '@/components/ui/Reveal';
 
@@ -14,7 +14,8 @@ const fields = [
   { name: 'phone', type: 'tel', autoComplete: 'tel', half: true },
   { name: 'subject', type: 'text', half: true },
 ];
-const empty = { name: '', email: '', phone: '', subject: '', message: '' };
+// `website` is a honeypot: hidden from people, filled in by bots, rejected by the API.
+const empty = { name: '', email: '', phone: '', subject: '', message: '', website: '' };
 
 function Field({ name, label, type = 'text', value, onChange, error, textarea, half: _half, ...rest }) {
   const Tag = textarea ? 'textarea' : 'input';
@@ -47,9 +48,16 @@ function Field({ name, label, type = 'text', value, onChange, error, textarea, h
   );
 }
 
-export default function ContactView() {
-  const { t, pick } = useLang();
+/**
+ * Contact form + company details. Field labels come from the `contact.*`
+ * translations, the form copy from the `contact_form` section (`content`), and
+ * phones/email/address/hours/map from site settings.
+ */
+export default function ContactView({ content }) {
+  const { t, pick, lang } = useLang();
+  const site = useSite();
   const c = t.contact;
+  const copy = pick(content) || {};
   const [form, setForm] = useState(empty);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle'); // idle | sending | sent | error
@@ -77,7 +85,7 @@ export default function ContactView() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, lang }),
       });
       if (!res.ok) throw new Error();
       setStatus('sent');
@@ -88,19 +96,19 @@ export default function ContactView() {
   };
 
   const info = [
-    {
+    site.phones.length > 0 && {
       icon: Phone,
       label: c.phones,
       content: site.phones.map((p) => (
-        <a key={p} href={telHref(p)} dir="ltr" className="block hover:text-gold">
+        <a key={p} href={site.telHref(p)} dir="ltr" className="block hover:text-gold">
           {p}
         </a>
       )),
     },
-    { icon: Mail, label: c.emailLabel, content: <a href={`mailto:${site.email}`} className="hover:text-gold">{site.email}</a> },
-    { icon: MapPin, label: c.office, content: pick(site.address) },
-    { icon: Clock, label: c.hours, content: c.hoursValue },
-  ];
+    site.email && { icon: Mail, label: c.emailLabel, content: <a href={`mailto:${site.email}`} className="hover:text-gold">{site.email}</a> },
+    pick(site.address) && { icon: MapPin, label: c.office, content: pick(site.address) },
+    pick(site.hours) && { icon: Clock, label: c.hours, content: pick(site.hours) },
+  ].filter(Boolean);
 
   const hoverProps = { onMouseEnter: () => setHover(true), onMouseLeave: () => setHover(false) };
 
@@ -111,13 +119,23 @@ export default function ContactView() {
         <Reveal className="h-full">
           <GlassCard strong synced={hover} {...hoverProps} className="h-full p-6 sm:p-10">
             <div className="relative z-10">
-              <h2 className="text-2xl font-black sm:text-3xl">{c.formTitle}</h2>
-              <p className="mt-2 text-white/60">{c.formDesc}</p>
+              <h2 className="text-2xl font-black sm:text-3xl">{copy.form_title}</h2>
+              {copy.form_description && <p className="mt-2 text-white/60">{copy.form_description}</p>}
 
               <form onSubmit={onSubmit} noValidate className="mt-8 grid gap-4 sm:grid-cols-2">
                 {fields.map((f) => (
                   <Field key={f.name} {...f} label={c[f.name]} value={form[f.name]} onChange={onChange} error={errors[f.name]} />
                 ))}
+                <input
+                  type="text"
+                  name="website"
+                  value={form.website}
+                  onChange={onChange}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="absolute -left-[9999px] h-0 w-0 opacity-0"
+                />
                 <div className="sm:col-span-2">
                   <Field name="message" label={c.message} textarea value={form.message} onChange={onChange} error={errors.message} />
                 </div>
@@ -151,7 +169,7 @@ export default function ContactView() {
                         exit={{ opacity: 0, height: 0 }}
                         className="flex items-center gap-2 rounded-2xl border border-whatsapp/40 bg-whatsapp/10 p-4 text-sm text-green-200"
                       >
-                        <CheckCircle2 size={18} /> {c.sent}
+                        <CheckCircle2 size={18} /> {copy.success_message}
                       </motion.p>
                     )}
                     {status === 'error' && (
@@ -161,7 +179,7 @@ export default function ContactView() {
                         exit={{ opacity: 0, height: 0 }}
                         className="rounded-2xl border border-red-400/40 bg-red-500/10 p-4 text-sm text-red-200"
                       >
-                        {pick({ ar: 'تعذر الإرسال، حاول مرة أخرى أو تواصل عبر واتساب.', en: 'Sending failed. Please try again or reach us on WhatsApp.' })}
+                        {copy.error_message}
                       </motion.p>
                     )}
                   </AnimatePresence>
@@ -173,7 +191,7 @@ export default function ContactView() {
 
         <Reveal delay={0.15} className="h-full">
           <GlassCard strong synced={hover} {...hoverProps} className="flex h-full flex-col gap-6 p-6 sm:p-10">
-            <h2 className="relative z-10 text-2xl font-black sm:text-3xl">{c.infoTitle}</h2>
+            <h2 className="relative z-10 text-2xl font-black sm:text-3xl">{copy.info_title}</h2>
             <div className="relative z-10 grid gap-4 sm:grid-cols-2">
               {info.map(({ icon: Icon, label, content }) => (
                 <div key={label} className="rounded-2xl border border-gold/15 bg-white/[0.03] p-4 transition hover:border-gold/50">
@@ -187,15 +205,17 @@ export default function ContactView() {
                 </div>
               ))}
             </div>
-            <div className="relative z-10 min-h-[300px] flex-1 overflow-hidden rounded-2xl border border-gold/25">
-              <iframe
-                title="TOP POWER map"
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(site.mapQuery)}&z=16&output=embed`}
-                className="map-dark absolute inset-0 h-full w-full"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
+            {site.mapEmbedUrl && (
+              <div className="relative z-10 min-h-[300px] flex-1 overflow-hidden rounded-2xl border border-gold/25">
+                <iframe
+                  title={`${site.logoText} map`}
+                  src={site.mapEmbedUrl}
+                  className="map-dark absolute inset-0 h-full w-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            )}
           </GlassCard>
         </Reveal>
       </div>

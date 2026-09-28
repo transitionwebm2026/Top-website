@@ -84,6 +84,12 @@ html[lang='en'] body {
   font-family: var(--font-en);
 }
 
+/* Arabic inputs inside the (English) dashboard keep the Arabic typeface */
+[lang='ar'] :is(input, textarea, select),
+:is(input, textarea)[dir='rtl'] {
+  font-family: var(--font-ar);
+}
+
 ::selection {
   background: var(--color-gold);
   color: var(--color-emerald-ink);
@@ -226,7 +232,37 @@ html[lang='en'] body {
   filter: invert(90%) hue-rotate(160deg) saturate(0.55) brightness(0.9) contrast(0.95);
 }
 
-/* Article rich text */
+/* Article rich text (Markdown from the dashboard) */
+.prose-article h2 {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--color-gold-light);
+  margin: 2rem 0 0.8rem;
+}
+.prose-article h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-gold-light);
+  margin: 1.4rem 0 0.6rem;
+}
+.prose-article a {
+  color: var(--color-gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-article strong { color: #fff; }
+.prose-article img {
+  margin: 1.5rem 0;
+  border-radius: 16px;
+  max-width: 100%;
+}
+.prose-article ol {
+  margin: 0.5rem 0 1.25rem;
+  padding-inline-start: 1.4rem;
+  list-style: decimal;
+}
+.prose-article ol li::before { display: none; }
+.prose-article blockquote p { margin: 0; color: inherit; }
 .prose-article h3 {
   font-size: 1.3rem;
   font-weight: 700;

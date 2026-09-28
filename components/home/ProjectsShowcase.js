@@ -5,14 +5,15 @@ import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Anchor, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
-import { projects } from '@/lib/data/company';
+
 import SectionHeading from '@/components/ui/SectionHeading';
 
 /**
  * Expanding-panel carousel: the active card widens (accordion feel) inside a
  * horizontally scrollable, drag-friendly track.
+ * `content` = `key_projects` heading; `projects` from partners_and_projects.
  */
-export default function ProjectsShowcase() {
+export default function ProjectsShowcase({ content, projects = [] }) {
   const { t, pick, isRTL } = useLang();
   const [active, setActive] = useState(0);
   const track = useRef(null);
@@ -39,16 +40,18 @@ export default function ProjectsShowcase() {
 
   const Prev = isRTL ? ChevronRight : ChevronLeft;
   const Next = isRTL ? ChevronLeft : ChevronRight;
+  const heading = pick(content);
+  if (!heading || !projects.length) return null;
 
   return (
     <section className="relative py-24">
       <div className="mx-auto flex max-w-7xl flex-col items-end justify-between gap-6 px-4 sm:px-6 md:flex-row lg:px-8">
-        <SectionHeading align="start" eyebrow={t.home.projectsEyebrow} title={t.home.projectsTitle} />
+        <SectionHeading align="start" eyebrow={heading.eyebrow} title={heading.title} />
         <div className="flex items-center gap-3">
-          <span className="hidden text-sm text-white/45 sm:block">{t.home.projectsHint}</span>
+          <span className="hidden text-sm text-white/45 sm:block">{heading.hint}</span>
           {[
-            [Prev, -1, 'prev'],
-            [Next, 1, 'next'],
+            [Prev, -1, t.common.prev],
+            [Next, 1, t.common.next],
           ].map(([Icon, s, k]) => (
             <button
               key={k}
@@ -74,7 +77,7 @@ export default function ProjectsShowcase() {
           const isActive = i === active;
           return (
             <motion.article
-              key={p.name.en}
+              key={p.id}
               layout
               onMouseEnter={() => setActive(i)}
               onFocus={() => setActive(i)}

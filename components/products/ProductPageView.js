@@ -21,8 +21,7 @@ import {
   ZoomIn,
 } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
-import { SHAPES, brandLogos, products } from '@/lib/data/products';
-import { waHref } from '@/lib/site';
+import { useSite } from '@/components/providers/SiteProvider';
 import GlassCard from '@/components/ui/GlassCard';
 import MagneticButton from '@/components/ui/MagneticButton';
 import Modal from '@/components/ui/Modal';
@@ -39,6 +38,7 @@ const sizeRange = (s) => (s.length > 1 ? `${s[0]} – ${s[s.length - 1]}` : s[0]
 
 function Header({ product, onPickGroup }) {
   const { t, pick, isRTL } = useLang();
+  const { waHref } = useSite();
   const tp = t.products;
   const [page, setPage] = useState(0);
   const [zoom, setZoom] = useState(false);
@@ -55,7 +55,9 @@ function Header({ product, onPickGroup }) {
   return (
     <section className="relative isolate overflow-hidden px-4 pt-32 pb-16 sm:px-6 lg:px-8">
       <div className="absolute inset-0 -z-20">
-        <Image src={product.brochure[0] || '/images/cover.jpg'} alt="" fill priority sizes="100vw" className="scale-110 object-cover blur-md" />
+        {(product.brochure[0] || product.image) && (
+          <Image src={product.brochure[0] || product.image} alt="" fill priority sizes="100vw" className="scale-110 object-cover blur-md" />
+        )}
       </div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-emerald-ink/90 via-emerald-ink/85 to-emerald-ink" />
       <div className="grid-texture absolute inset-0 -z-10" />
@@ -65,7 +67,7 @@ function Header({ product, onPickGroup }) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease }}
-          aria-label="breadcrumb"
+          aria-label={t.common.breadcrumb}
           className="flex flex-wrap items-center gap-2 text-sm text-white/55"
         >
           <Link href="/" className="hover:text-gold">
@@ -258,8 +260,7 @@ function Overview({ product }) {
 
 /* ------------------------------------------------------------- group panel */
 
-function BrandLogo({ name }) {
-  const logo = brandLogos[name];
+function BrandLogo({ logo }) {
   if (!logo) return null;
   return (
     <span className="relative block h-7 w-10 shrink-0 overflow-hidden rounded-md bg-white">
@@ -268,18 +269,20 @@ function BrandLogo({ name }) {
   );
 }
 
-function GroupPanel({ product, group }) {
+function GroupPanel({ group }) {
   const { t, pick } = useLang();
+  const { waHref } = useSite();
   const tp = t.products;
   const [brandIdx, setBrandIdx] = useState(0);
+  const [photo, setPhoto] = useState(null); // a gallery image picked by the visitor
   const [shape, setShape] = useState(null);
 
   const brand = group.brands[brandIdx];
   const brandName = brand ? pick(brand.name) : '';
-  const image = brand?.image ?? group.image;
+  const image = photo ?? brand?.image ?? group.image;
   const datasheet = brand?.datasheet || group.datasheet;
   const groupName = pick(group.name);
-  const shapeName = shape ? pick(SHAPES[shape]) : '';
+  const shapeName = shape ? t.shapes[shape] || shape : '';
   const label = [groupName, brandName, shapeName].filter(Boolean).join(' — ');
 
   return (
@@ -288,16 +291,33 @@ function GroupPanel({ product, group }) {
       <div className="flex flex-col gap-5">
         <div className="group relative overflow-hidden rounded-3xl border border-gold/25">
           {/* Keyed so it replays a CSS fade on each brand switch; no exit wait, never stuck hidden. */}
-          <div key={`${image}-${brandIdx}`} className="animate-fade-in">
+          <div key={`${image}-${brandIdx}-${photo}`} className="animate-fade-in">
             <ProductVisual src={image} icon={group.icon} alt={label} className="aspect-[4/3]" sizes="(max-width:1024px) 95vw, 560px" imgClassName="p-6" />
           </div>
           {brand && (
             <span className="absolute top-4 start-4 inline-flex items-center gap-2 rounded-full bg-emerald-deep/90 py-1 ps-1 pe-3 text-xs font-bold text-gold backdrop-blur">
-              <BrandLogo name={brand.name} />
+              <BrandLogo logo={brand.logo} />
               {brandName}
             </span>
           )}
         </div>
+
+        {group.gallery.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {group.gallery.map((src) => (
+              <button
+                key={src}
+                onClick={() => setPhoto(photo === src ? null : src)}
+                aria-pressed={photo === src}
+                className={`relative h-16 w-16 overflow-hidden rounded-xl border-2 bg-white transition ${
+                  photo === src ? 'border-gold shadow-[0_0_16px_rgba(205,176,116,0.5)]' : 'border-transparent opacity-70 hover:opacity-100'
+                }`}
+              >
+                <Image src={src} alt="" fill sizes="64px" unoptimized className="object-contain p-1" />
+              </button>
+            ))}
+          </div>
+        )}
 
         {group.brands.length > 0 ? (
           <>
@@ -308,7 +328,10 @@ function GroupPanel({ product, group }) {
                   {group.brands.map((b, i) => (
                     <button
                       key={pick(b.name)}
-                      onClick={() => setBrandIdx(i)}
+                      onClick={() => {
+                        setBrandIdx(i);
+                        setPhoto(null);
+                      }}
                       className={`relative isolate inline-flex items-center gap-2 rounded-2xl border px-3 py-2 text-sm font-bold transition ${
                         i === brandIdx ? 'border-gold text-emerald-ink' : 'border-gold/25 text-white/80 hover:border-gold/60'
                       }`}
@@ -316,7 +339,7 @@ function GroupPanel({ product, group }) {
                       {i === brandIdx && (
                         <motion.span layoutId="brand-active" className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-gold-light to-gold" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />
                       )}
-                      <BrandLogo name={b.name} />
+                      <BrandLogo logo={b.logo} />
                       {pick(b.name)}
                       {b.primary && (
                         <span
@@ -409,7 +432,7 @@ function GroupPanel({ product, group }) {
                   >
                     <ProductVisual src={s.image} icon={s.key} className="aspect-square" sizes="120px" imgClassName="p-2" note={false} />
                     <span className={`block px-1 py-2 text-xs font-bold ${on ? 'bg-gold text-emerald-ink' : 'bg-white/[0.03] text-white/85'}`}>
-                      {pick(SHAPES[s.key])}
+                      {t.shapes[s.key] || s.key}
                     </span>
                   </button>
                 );
@@ -450,6 +473,7 @@ function Types({ product, active, onPickGroup }) {
   const { t, pick } = useLang();
   const tp = t.products;
   const group = product.groups.find((g) => g.id === active) || product.groups[0];
+  if (!group) return null;
 
   return (
     <section id="types" className="scroll-mt-24 px-4 py-16 sm:px-6 lg:px-8">
@@ -483,7 +507,7 @@ function Types({ product, active, onPickGroup }) {
         <GlassCard strong className="mt-8 p-5 sm:p-8">
           {/* Keyed on the tab: remounts the panel (resets brand/shape) and replays a CSS enter animation. */}
           <div key={group.id} className="animate-panel-in relative z-10">
-            <GroupPanel product={product} group={group} />
+            <GroupPanel group={group} />
           </div>
         </GlassCard>
 
@@ -536,10 +560,10 @@ function Types({ product, active, onPickGroup }) {
 
 /* ------------------------------------------------------------- other lines */
 
-function OtherLines({ current }) {
+function OtherLines({ others }) {
   const { t, pick, isRTL } = useLang();
   const Arrow = isRTL ? ArrowUpLeft : ArrowUpRight;
-  const others = products.filter((p) => p.id !== current);
+  if (!others.length) return null;
   return (
     <section className="px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -571,9 +595,9 @@ function OtherLines({ current }) {
 
 /* -------------------------------------------------------------------- page */
 
-export default function ProductPageView({ id }) {
-  const product = products.find((p) => p.id === id);
-  const [active, setActive] = useState(product.groups[0].id);
+/** One product line page. `product` = mapped category with groups; `others` = the other lines. */
+export default function ProductPageView({ product, others = [] }) {
+  const [active, setActive] = useState(product.groups[0]?.id);
 
   // Deep link: /products/<line>#<group> opens that sub-type tab.
   useEffect(() => {
@@ -615,7 +639,7 @@ export default function ProductPageView({ id }) {
       <Header product={product} onPickGroup={pickGroup} />
       <Overview product={product} />
       <Types product={product} active={active} onPickGroup={pickGroup} />
-      <OtherLines current={product.id} />
+      <OtherLines others={others} />
     </>
   );
 }

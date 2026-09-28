@@ -58,7 +58,7 @@ export default function Modal({ open, onClose, children, size = 'lg', label }) {
           >
             <button
               onClick={onClose}
-              aria-label={t.close}
+              aria-label={t.common.close}
               className="glass sticky top-4 z-20 float-end me-4 mt-4 grid h-11 w-11 place-items-center rounded-full text-gold transition hover:rotate-90 hover:bg-gold hover:text-emerald-ink"
             >
               <X size={20} />

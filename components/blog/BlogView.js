@@ -5,11 +5,11 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpLeft, ArrowUpRight, CalendarDays, Clock } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
-import { articles } from '@/lib/data/blog';
 import GlassCard from '@/components/ui/GlassCard';
 import Modal from '@/components/ui/Modal';
 import SectionHeading from '@/components/ui/SectionHeading';
 import { Reveal, Stagger, StaggerItem } from '@/components/ui/Reveal';
+import ArticleBody from './ArticleBody';
 
 function useFormatDate() {
   const { lang } = useLang();
@@ -33,26 +33,6 @@ function Meta({ a }) {
   );
 }
 
-function ArticleBody({ blocks }) {
-  return (
-    <div className="prose-article">
-      {blocks.map((b, i) => {
-        if (b.h) return <h3 key={i}>{b.h}</h3>;
-        if (b.q) return <blockquote key={i}>{b.q}</blockquote>;
-        if (b.ul)
-          return (
-            <ul key={i}>
-              {b.ul.map((li) => (
-                <li key={li}>{li}</li>
-              ))}
-            </ul>
-          );
-        return <p key={i}>{b.p}</p>;
-      })}
-    </div>
-  );
-}
-
 function ArticleModal({ article, onClose }) {
   const { pick } = useLang();
   return (
@@ -61,7 +41,7 @@ function ArticleModal({ article, onClose }) {
         <article>
           <div className="relative -mt-[3.75rem] h-64 overflow-hidden rounded-t-[28px] sm:h-80">
             <motion.div initial={{ scale: 1.15 }} animate={{ scale: 1 }} transition={{ duration: 1.2 }} className="absolute inset-0">
-              <Image src={article.image} alt="" fill sizes="700px" className="object-cover" />
+              {article.image && <Image src={article.image} alt="" fill sizes="700px" className="object-cover" />}
             </motion.div>
             <div className="absolute inset-0 bg-gradient-to-t from-emerald-deep via-emerald-deep/40 to-transparent" />
           </div>
@@ -74,7 +54,7 @@ function ArticleModal({ article, onClose }) {
               <Meta a={article} />
             </div>
             <div className="mt-6">
-              <ArticleBody blocks={pick(article.body)} />
+              <ArticleBody markdown={pick(article.body)} />
             </div>
           </div>
         </article>
@@ -83,12 +63,26 @@ function ArticleModal({ article, onClose }) {
   );
 }
 
-export default function BlogView() {
+/**
+ * Blog listing: one hero article (display = 'hero') plus the grid.
+ * `articles` = published blogs (newest first); `gridHeading` = `blog_grid` section.
+ */
+export default function BlogView({ articles = [], gridHeading }) {
   const { t, pick, isRTL } = useLang();
   const [open, setOpen] = useState(null);
-  const featured = articles.find((a) => a.featured);
-  const rest = articles.filter((a) => !a.featured).slice(0, 6);
+  // Fall back to the newest article when none is marked as hero.
+  const featured = articles.find((a) => a.featured) || articles[0];
+  const rest = articles.filter((a) => a !== featured);
+  const heading = pick(gridHeading);
   const Arrow = isRTL ? ArrowUpLeft : ArrowUpRight;
+
+  if (!featured) {
+    return (
+      <section id="content" className="px-4 py-24 text-center text-white/60">
+        {t.blog.empty}
+      </section>
+    );
+  }
 
   return (
     <section id="content" className="px-4 py-20 sm:px-6 lg:px-8">
@@ -97,14 +91,16 @@ export default function BlogView() {
         <Reveal>
           <GlassCard strong className="group grid overflow-hidden p-3 lg:grid-cols-[1.25fr_1fr]">
             <button onClick={() => setOpen(featured)} className="relative z-10 block h-72 overflow-hidden rounded-[20px] sm:h-96 lg:h-[480px]" aria-label={pick(featured.title)}>
-              <Image
-                src={featured.image}
-                alt=""
-                fill
-                priority
-                sizes="(max-width:1024px) 95vw, 700px"
-                className="object-cover transition duration-[1.2s] group-hover:scale-110"
-              />
+              {featured.image && (
+                <Image
+                  src={featured.image}
+                  alt=""
+                  fill
+                  priority
+                  sizes="(max-width:1024px) 95vw, 700px"
+                  className="object-cover transition duration-[1.2s] group-hover:scale-110"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-ink/70 to-transparent" />
               <span className="absolute top-5 start-5 rounded-full bg-gold px-4 py-1.5 text-xs font-bold text-emerald-ink">{t.blog.featured}</span>
             </button>
@@ -124,7 +120,7 @@ export default function BlogView() {
           </GlassCard>
         </Reveal>
 
-        <SectionHeading className="mt-24" eyebrow={t.nav.blog} title={t.blog.latest} />
+        {rest.length > 0 && heading && <SectionHeading className="mt-24" eyebrow={heading.eyebrow} title={heading.title} desc={heading.description} />}
 
         {/* 3x2 staggered grid — middle column is offset for rhythm */}
         <Stagger className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3" gap={0.1}>
@@ -132,13 +128,15 @@ export default function BlogView() {
             <StaggerItem key={a.id} className={i % 3 === 1 ? 'lg:translate-y-10' : ''}>
               <GlassCard as="article" className="group flex h-full flex-col overflow-hidden p-3 hover:-translate-y-2">
                 <button onClick={() => setOpen(a)} className="relative z-10 block h-52 overflow-hidden rounded-2xl bg-white" aria-label={pick(a.title)}>
-                  <Image
-                    src={a.image}
-                    alt=""
-                    fill
-                    sizes="(max-width:768px) 95vw, 400px"
-                    className="object-cover object-top transition duration-700 group-hover:scale-110 group-hover:rotate-1"
-                  />
+                  {a.image && (
+                    <Image
+                      src={a.image}
+                      alt=""
+                      fill
+                      sizes="(max-width:768px) 95vw, 400px"
+                      className="object-cover object-top transition duration-700 group-hover:scale-110 group-hover:rotate-1"
+                    />
+                  )}
                   <span className="absolute top-3 start-3 rounded-full bg-emerald-deep/90 px-3 py-1 text-xs font-bold text-gold backdrop-blur">
                     {pick(a.category)}
                   </span>

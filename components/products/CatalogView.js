@@ -5,14 +5,14 @@ import { useState } from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { ArrowUpLeft, ArrowUpRight, BadgeCheck, ChevronLeft, ChevronRight, Layers } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
-import { products } from '@/lib/data/products';
 import GlassCard from '@/components/ui/GlassCard';
 import ProductVisual from './ProductVisual';
 import ShapeIcon from './ShapeIcon';
 
 const sizeRange = (s) => (s.length > 1 ? `${s[0]} – ${s[s.length - 1]}` : s[0]);
 
-export default function CatalogView() {
+/** Catalog of product lines. `products` = published categories with their sub-types (groups). */
+export default function CatalogView({ products = [] }) {
   const { t, pick, isRTL } = useLang();
   const [filter, setFilter] = useState('all');
   const Arrow = isRTL ? ArrowUpLeft : ArrowUpRight;

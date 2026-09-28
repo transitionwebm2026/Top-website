@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ArrowUpLeft, ArrowUpRight, BadgeCheck } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
-import { products } from '@/lib/data/products';
+
 import GlassCard from '@/components/ui/GlassCard';
 import Modal from '@/components/ui/Modal';
 import SectionHeading from '@/components/ui/SectionHeading';
@@ -11,15 +11,18 @@ import { Stagger, StaggerItem } from '@/components/ui/Reveal';
 import ProductDetail from '@/components/products/ProductDetail';
 import ProductVisual from '@/components/products/ProductVisual';
 
-export default function ProductBento() {
+/** Home product lines grid. `content` = `bento_grid` heading; `products` = categories shown on home. */
+export default function ProductBento({ content, products = [] }) {
   const { t, pick, isRTL } = useLang();
   const [active, setActive] = useState(null);
   const Arrow = isRTL ? ArrowUpLeft : ArrowUpRight;
+  const heading = pick(content);
+  if (!heading || !products.length) return null;
 
   return (
     <section className="relative px-4 py-24 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <SectionHeading eyebrow={t.home.productsEyebrow} title={t.home.productsTitle} />
+        <SectionHeading eyebrow={heading.eyebrow} title={heading.title} desc={heading.description} />
 
         {/* Full-width rows stacked vertically; the image side alternates on desktop. */}
         <Stagger className="mt-14 flex flex-col gap-6" gap={0.12}>
