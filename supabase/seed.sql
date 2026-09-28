@@ -15,12 +15,12 @@ insert into public.site_settings (
   site_url, meta_title_ar, meta_title_en, meta_description_ar, meta_description_en
 ) values (
   1, 'توب باور', 'TOP POWER', 'TOP POWER', 'مستلزمات هندسية MEP', 'MEP Engineering Supplies', 'الهندسية للتوريدات الكهربائية والمقاولات توب باور', 'Top Power Engineering Supplies & Contracting',
-  '/images/logo.jpg', '/images/logo-full.jpg', '/images/logo.jpg', '/images/logo-full.jpg', '#153726', '#215733', '#CDB074',
+  '/images/logo.jpg', '/images/logo-full.jpg', '/images/logo.jpg', '/images/og-image.jpg', '#153726', '#215733', '#CDB074',
   array['+201000000000', '+201100000000']::text[], '+201000000000', '201000000000', 'مرحباً توب باور، أريد الاستفسار عن', 'Hello TOP POWER, I would like to ask about', 'info@example.com',
   'القاهرة - الأزبكية - 23 شارع عماد الدين', '23 Emad El-Din St., Azbakeya, Cairo, Egypt', 'السبت – الخميس · 9 ص – 6 م', 'Sat – Thu · 9 AM – 6 PM', 'https://maps.google.com/maps?q=23%20Emad%20El-Din%20Street%2C%20Azbakeya%2C%20Cairo%2C%20Egypt&z=16&output=embed',
   'https://facebook.com/', 'https://instagram.com/', 'https://tiktok.com/', '[{"label_ar":"الرئيسية","label_en":"Home","href":"/","visible":true},{"label_ar":"من نحن","label_en":"About Us","href":"/about","visible":true},{"label_ar":"المنتجات والكتالوج","label_en":"Products & Catalog","href":"/products","visible":true},{"label_ar":"المدونة","label_en":"Blog","href":"/blog","visible":true},{"label_ar":"اتصل بنا","label_en":"Contact Us","href":"/contact","visible":true}]'::jsonb, '[{"label_ar":"الرئيسية","label_en":"Home","href":"/","visible":true},{"label_ar":"من نحن","label_en":"About Us","href":"/about","visible":true},{"label_ar":"المنتجات والكتالوج","label_en":"Products & Catalog","href":"/products","visible":true},{"label_ar":"المدونة","label_en":"Blog","href":"/blog","visible":true},{"label_ar":"اتصل بنا","label_en":"Contact Us","href":"/contact","visible":true}]'::jsonb,
   '700020654', '4648446200886003', true, 'UL · FM · LPCB · VdS · NFPA',
-  'https://example.com', 'توب باور – مستلزمات هندسية MEP', 'TOP POWER – MEP Engineering Supplies',
+  null, 'توب باور – مستلزمات هندسية MEP', 'TOP POWER – MEP Engineering Supplies',
   'توب باور – مورّد أنظمة الحماية من الحريق ومستلزمات MEP المعتمدة UL / FM / LPCB / VdS في مصر والسعودية.',
   'TOP POWER supplies UL / FM / LPCB / VdS approved fire protection systems and MEP supplies in Egypt & KSA.'
 ) on conflict (id) do nothing;

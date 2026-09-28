@@ -49,12 +49,12 @@ emit(`insert into public.site_settings (
   site_url, meta_title_ar, meta_title_en, meta_description_ar, meta_description_en
 ) values (
   1, ${q(site.name.ar)}, ${q(site.name.en)}, 'TOP POWER', ${q(site.tagline.ar)}, ${q(site.tagline.en)}, ${q(site.legalName.ar)}, ${q(site.legalName.en)},
-  '/images/logo.jpg', '/images/logo-full.jpg', '/images/logo.jpg', '/images/logo-full.jpg', '#153726', '#215733', '#CDB074',
+  '/images/logo.jpg', '/images/logo-full.jpg', '/images/logo.jpg', '/images/og-image.jpg', '#153726', '#215733', '#CDB074',
   ${arr(site.phones)}, ${q(site.phones[0])}, ${q(site.whatsapp)}, ${q(greeting.ar)}, ${q(greeting.en)}, ${q(site.email)},
   ${q(site.address.ar)}, ${q(site.address.en)}, ${q(dict.ar.contact.hoursValue)}, ${q(dict.en.contact.hoursValue)}, ${q(mapEmbed)},
   ${q(site.social.facebook)}, ${q(site.social.instagram)}, ${q(site.social.tiktok)}, ${json(links)}, ${json(links)},
   ${q(site.registrations.importers)}, ${q(site.registrations.taxCard)}, true, 'UL · FM · LPCB · VdS · NFPA',
-  'https://example.com', 'توب باور – مستلزمات هندسية MEP', 'TOP POWER – MEP Engineering Supplies',
+  null, 'توب باور – مستلزمات هندسية MEP', 'TOP POWER – MEP Engineering Supplies',
   'توب باور – مورّد أنظمة الحماية من الحريق ومستلزمات MEP المعتمدة UL / FM / LPCB / VdS في مصر والسعودية.',
   'TOP POWER supplies UL / FM / LPCB / VdS approved fire protection systems and MEP supplies in Egypt & KSA.'
 ) on conflict (id) do nothing;`);

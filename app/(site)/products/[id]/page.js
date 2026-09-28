@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import ProductPageView from '@/components/products/ProductPageView';
 import PreFooterCTA from '@/components/layout/PreFooterCTA';
-import { getCatalog, getPage } from '@/lib/cms/queries';
+import { getCatalog, getPage, getSiteSettings } from '@/lib/cms/queries';
+import { ogImage, socialMeta } from '@/lib/cms/seo';
 import { getLang } from '@/lib/lang';
 
 // `id` is the category slug (pipes, fittings, …). Product line pages share the
@@ -9,13 +10,15 @@ import { getLang } from '@/lib/lang';
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const [catalog, lang] = await Promise.all([getCatalog(), getLang()]);
+  const [catalog, lang, s] = await Promise.all([getCatalog(), getLang(), getSiteSettings()]);
   const p = catalog.find((x) => x.id === id);
   if (!p) return {};
+  const siteName = s?.name[lang];
   return {
     title: p.name[lang],
     description: p.short[lang],
-    ...(p.image ? { openGraph: { images: [p.image] } } : {}),
+    // Link previews use the brand image (the logo) with the product line's name.
+    ...socialMeta({ title: `${p.name[lang]} | ${siteName}`, description: p.short[lang], image: ogImage(s?.ogImage, siteName), siteName, lang }),
   };
 }
 
