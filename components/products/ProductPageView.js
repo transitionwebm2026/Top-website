@@ -176,7 +176,7 @@ function Header({ product, onPickGroup }) {
                 </button>
               ) : (
                 <div className="group relative overflow-hidden rounded-[26px] border border-gold/30 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.9)]">
-                  <ProductVisual src={product.image} icon={product.icon} alt={pick(product.name)} className="aspect-[3/4]" sizes="450px" />
+                  <ProductVisual src={product.image} icon={product.icon} alt={pick(product.name)} fit="cover" className="aspect-[3/4]" sizes="450px" />
                 </div>
               )}
             </div>
@@ -572,7 +572,7 @@ function OtherLines({ others }) {
           {others.map((p) => (
             <StaggerItem key={p.id}>
               <GlassCard as={Link} href={`/products/${p.id}`} className="group flex h-full flex-col p-3 hover:-translate-y-1.5">
-                <ProductVisual src={p.image} icon={p.icon} alt={pick(p.name)} className="relative z-10 h-28 rounded-2xl" sizes="300px" imgClassName="p-2" note={false} />
+                <ProductVisual src={p.image} icon={p.icon} alt={pick(p.name)} fit="cover" className="relative z-10 aspect-[16/10] rounded-2xl" sizes="300px" note={false} />
                 <div className="relative z-10 flex flex-1 items-center justify-between gap-3 p-3">
                   <div>
                     <h3 className="font-bold">{pick(p.name)}</h3>

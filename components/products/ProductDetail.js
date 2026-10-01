@@ -62,7 +62,7 @@ export default function ProductDetail({ product }) {
         {/* Brochure viewer */}
         <motion.div custom={2} variants={item} initial="hidden" animate="show" className="flex flex-col gap-3">
           {product.brochure.length === 0 ? (
-            <ProductVisual src={product.image} icon={product.icon} alt={pick(product.name)} className="aspect-[3/4] rounded-2xl border border-gold/30" sizes="480px" hover={false} />
+            <ProductVisual src={product.image} icon={product.icon} alt={pick(product.name)} fit="cover" className="aspect-[3/4] rounded-2xl border border-gold/30" sizes="480px" hover={false} />
           ) : (
           <>
           <p className="text-sm font-semibold text-gold">{tp.brochure}</p>

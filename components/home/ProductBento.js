@@ -33,10 +33,19 @@ export default function ProductBento({ content, products = [] }) {
                 <GlassCard
                   as="button"
                   onClick={() => setActive(p)}
-                  className="group grid w-full overflow-hidden p-4 text-start hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-20px_rgba(205,176,116,0.35)] sm:p-5 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-8"
+                  className={`group grid w-full overflow-hidden p-4 text-start hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-20px_rgba(205,176,116,0.35)] sm:p-5 md:gap-8 ${
+                    flip ? 'md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]' : 'md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]'
+                  }`}
                 >
                   <div className={`relative z-10 overflow-hidden rounded-2xl ${flip ? 'md:order-2' : ''}`}>
-                    <ProductVisual src={p.image} icon={p.icon} alt={pick(p.name)} className="h-48 sm:h-56 md:h-64" sizes="(max-width: 768px) 100vw, 680px" />
+                    <ProductVisual
+                      src={p.image}
+                      icon={p.icon}
+                      alt={pick(p.name)}
+                      fit="cover"
+                      className="aspect-[16/10] md:aspect-auto md:h-full md:min-h-[340px]"
+                      sizes="(max-width: 768px) 100vw, 600px"
+                    />
                     <span className="absolute top-3 start-3 rounded-full bg-emerald-deep px-3 py-1 font-[family-name:var(--font-montserrat)] text-xs font-bold text-gold">
                       0{idx + 1}
                     </span>

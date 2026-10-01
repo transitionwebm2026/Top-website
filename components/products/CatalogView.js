@@ -74,9 +74,9 @@ export default function CatalogView({ products = [] }) {
                         src={p.image}
                         icon={p.icon}
                         alt={pick(p.name)}
-                        className="h-60 sm:h-72 lg:h-full lg:min-h-[380px]"
+                        fit="cover"
+                        className="aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-full lg:min-h-[380px]"
                         sizes="(max-width:1024px) 95vw, 520px"
-                        imgClassName="p-5"
                       />
                       <span className="absolute top-4 start-4 rounded-full bg-emerald-deep px-3 py-1 font-[family-name:var(--font-montserrat)] text-xs font-bold text-gold">
                         {index}
