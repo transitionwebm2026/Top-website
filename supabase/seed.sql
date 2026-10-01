@@ -618,8 +618,7 @@ select * from (values
   ('project', 'نافورة نهر النيل', 'Nile River Fountain', 'القاهرة – مصر', 'Cairo, Egypt', 'معالم سياحية', 'Landmark', '/images/projects/p5.jpg', 4),
   ('project', 'مستشفى 500500', '500500 Hospital', 'القاهرة – مصر', 'Cairo, Egypt', 'رعاية صحية', 'Healthcare', '/images/projects/p6.jpg', 5),
   ('project', 'البريد المصري', 'Egypt Post', 'مصر', 'Egypt', 'حكومي', 'Government', '/images/projects/p8.jpg', 6),
-  ('project', 'البنك الزراعي المصري', 'Agricultural Bank of Egypt', 'مصر', 'Egypt', 'مصرفي', 'Banking', '/images/projects/p7.jpg', 7),
-  ('project', 'ميناء دمياط', 'Damietta Port', 'دمياط – مصر', 'Damietta, Egypt', 'موانئ ولوجستيات', 'Ports & Logistics', null, 8)
+  ('project', 'البنك الزراعي المصري', 'Agricultural Bank of Egypt', 'مصر', 'Egypt', 'مصرفي', 'Banking', '/images/projects/p7.jpg', 7)
 ) v where not exists (select 1 from public.partners_and_projects);
 
 commit;

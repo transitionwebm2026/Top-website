@@ -59,12 +59,6 @@ export const projects = [
     place: { ar: 'مصر', en: 'Egypt' },
     type: { ar: 'مصرفي', en: 'Banking' },
   },
-  {
-    image: null,
-    name: { ar: 'ميناء دمياط', en: 'Damietta Port' },
-    place: { ar: 'دمياط – مصر', en: 'Damietta, Egypt' },
-    type: { ar: 'موانئ ولوجستيات', en: 'Ports & Logistics' },
-  },
 ];
 
 export const certifications = [

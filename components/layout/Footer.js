@@ -125,14 +125,19 @@ export default function Footer() {
 
       {/* Agency credit — the agency's own signature, intentionally not editable in the CMS. */}
       <div className="flex justify-center px-4 pb-8">
-        <div className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-gold/45 bg-gradient-to-l from-emerald-mid via-emerald-deep to-emerald-ink px-6 py-3 shadow-[0_10px_40px_-12px_rgba(205,176,116,0.45)] transition duration-500 hover:-translate-y-0.5 hover:border-gold hover:shadow-[0_14px_50px_-10px_rgba(205,176,116,0.7)] rtl:bg-gradient-to-r">
+        <a
+          href="https://transitioneg.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-gold/45 bg-gradient-to-l from-emerald-mid via-emerald-deep to-emerald-ink px-6 py-3 shadow-[0_10px_40px_-12px_rgba(205,176,116,0.45)] transition duration-500 hover:-translate-y-0.5 hover:border-gold hover:shadow-[0_14px_50px_-10px_rgba(205,176,116,0.7)] rtl:bg-gradient-to-r"
+        >
           <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-gold/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
           <span className="relative text-sm font-bold text-white/90">{t.footer.credit}</span>
           <Image src="/images/logo-01-mark.png" alt="" width={29} height={24} className="relative h-6 w-auto opacity-90" />
           <span className="text-gold-gradient relative font-[family-name:var(--font-montserrat)] text-base font-extrabold tracking-wide">
             Transition
           </span>
-        </div>
+        </a>
       </div>
     </footer>
   );
