@@ -110,7 +110,7 @@ const meta = {
   market: {
     path: '/products',
     title: { ar: 'المنتجات والكتالوج', en: 'Products & Catalog' },
-    desc: { ar: 'مواسير سيملس، وصلات، محابس، رشاشات وصناديق حريق معتمدة UL / FM.', en: 'Seamless pipes, fittings, valves, sprinklers and fire cabinets – UL / FM approved.' },
+    desc: { ar: 'مواسير سيملس، وصلات، محابس ورشاشات حريق معتمدة UL / FM.', en: 'Seamless pipes, fittings, valves and sprinklers – UL / FM approved.' },
   },
   blogs: {
     path: '/blog',

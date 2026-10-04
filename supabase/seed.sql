@@ -129,7 +129,7 @@ on conflict (key) do nothing;
 insert into public.pages (slug, path, title_ar, title_en, meta_title_ar, meta_title_en, meta_description_ar, meta_description_en, sort_order) values
   ('home', '/', 'الرئيسية', 'Home', null, null, null, null, 0),
   ('about_us', '/about', 'من نحن', 'About Us', 'من نحن', 'About Us', 'أكثر من 20 عاماً في توريد أنظمة الحماية من الحريق المعتمدة في مصر والسعودية.', '20+ years supplying approved fire protection systems in Egypt and KSA.', 1),
-  ('market', '/products', 'المنتجات والكتالوج', 'Products & Catalog', 'المنتجات والكتالوج', 'Products & Catalog', 'مواسير سيملس، وصلات، محابس، رشاشات وصناديق حريق معتمدة UL / FM.', 'Seamless pipes, fittings, valves, sprinklers and fire cabinets – UL / FM approved.', 2),
+  ('market', '/products', 'المنتجات والكتالوج', 'Products & Catalog', 'المنتجات والكتالوج', 'Products & Catalog', 'مواسير سيملس، وصلات، محابس ورشاشات حريق معتمدة UL / FM.', 'Seamless pipes, fittings, valves and sprinklers – UL / FM approved.', 2),
   ('blogs', '/blog', 'المدونة', 'Blog', 'المدونة', 'Blog', 'مقالات فنية عن أنظمة مكافحة الحريق والاعتمادات واختيار المواد.', 'Technical articles on fire protection systems, approvals and material selection.', 3),
   ('contact_us', '/contact', 'اتصل بنا', 'Contact Us', 'اتصل بنا', 'Contact Us', 'تواصل مع توب باور – القاهرة، الأزبكية، 23 شارع عماد الدين.', 'Contact TOP POWER – 23 Emad El-Din St., Azbakeya, Cairo.', 4)
 on conflict (slug) do nothing;
@@ -160,7 +160,7 @@ insert into public.section_content (section_id, content_ar, content_en) select s
 insert into public.sections (page_id, key, type, label, sort_order) select id, 'pre_footer_cta', 'cta', 'Pre-footer CTA', 5 from public.pages where slug = 'about_us' on conflict (page_id, key) do nothing;
 insert into public.section_content (section_id, content_ar, content_en) select s.id, '{"title":"جاهز تبدأ مشروعك القادم؟","description":"احصل على عرض سعر لمواسير، وصلات، محابس ورشاشات معتمدة مع توفر فوري من المخزون.","whatsapp_label":"واتساب","call_label":"اتصل بنا"}'::jsonb, '{"title":"Ready to start your next project?","description":"Get a quotation for certified pipes, fittings, valves and sprinklers with immediate stock availability.","whatsapp_label":"WhatsApp","call_label":"Call Us Now"}'::jsonb from public.sections s join public.pages p on p.id = s.page_id where p.slug = 'about_us' and s.key = 'pre_footer_cta' on conflict (section_id) do nothing;
 insert into public.sections (page_id, key, type, label, sort_order) select id, 'hero_section', 'hero', 'Hero Section', 0 from public.pages where slug = 'market' on conflict (page_id, key) do nothing;
-insert into public.section_content (section_id, content_ar, content_en) select s.id, '{"title":"منتجات معتمدة","title_highlight":"لكل مشروع وكل ضغط تشغيل","description":"خمسة خطوط إنتاج رئيسية من مصانع عالمية، معتمدة UL و FM، ومطابقة لمعايير ASTM و ASME و NFPA.","image":"/images/brochure/mech-grooved.jpg","cta_primary_label":"تواصل معنا","cta_primary_href":"/contact","cta_secondary_label":"استكشف منتجاتنا","cta_secondary_href":"/products","badges":[]}'::jsonb, '{"title":"Certified Products","title_highlight":"for Every Project & Pressure","description":"Five core product lines from world-class manufacturers — UL Listed, FM Approved and compliant with ASTM, ASME and NFPA.","image":"/images/brochure/mech-grooved.jpg","cta_primary_label":"Contact Us","cta_primary_href":"/contact","cta_secondary_label":"Explore Our Products","cta_secondary_href":"/products","badges":[]}'::jsonb from public.sections s join public.pages p on p.id = s.page_id where p.slug = 'market' and s.key = 'hero_section' on conflict (section_id) do nothing;
+insert into public.section_content (section_id, content_ar, content_en) select s.id, '{"title":"منتجات معتمدة","title_highlight":"لكل مشروع وكل ضغط تشغيل","description":"أربعة خطوط إنتاج رئيسية من مصانع عالمية، معتمدة UL و FM، ومطابقة لمعايير ASTM و ASME و NFPA.","image":"/images/brochure/mech-grooved.jpg","cta_primary_label":"تواصل معنا","cta_primary_href":"/contact","cta_secondary_label":"استكشف منتجاتنا","cta_secondary_href":"/products","badges":[]}'::jsonb, '{"title":"Certified Products","title_highlight":"for Every Project & Pressure","description":"Four core product lines from world-class manufacturers — UL Listed, FM Approved and compliant with ASTM, ASME and NFPA.","image":"/images/brochure/mech-grooved.jpg","cta_primary_label":"Contact Us","cta_primary_href":"/contact","cta_secondary_label":"Explore Our Products","cta_secondary_href":"/products","badges":[]}'::jsonb from public.sections s join public.pages p on p.id = s.page_id where p.slug = 'market' and s.key = 'hero_section' on conflict (section_id) do nothing;
 insert into public.sections (page_id, key, type, label, sort_order) select id, 'pre_footer_cta', 'cta', 'Pre-footer CTA', 1 from public.pages where slug = 'market' on conflict (page_id, key) do nothing;
 insert into public.section_content (section_id, content_ar, content_en) select s.id, '{"title":"جاهز تبدأ مشروعك القادم؟","description":"احصل على عرض سعر لمواسير، وصلات، محابس ورشاشات معتمدة مع توفر فوري من المخزون.","whatsapp_label":"واتساب","call_label":"اتصل بنا"}'::jsonb, '{"title":"Ready to start your next project?","description":"Get a quotation for certified pipes, fittings, valves and sprinklers with immediate stock availability.","whatsapp_label":"WhatsApp","call_label":"Call Us Now"}'::jsonb from public.sections s join public.pages p on p.id = s.page_id where p.slug = 'market' and s.key = 'pre_footer_cta' on conflict (section_id) do nothing;
 insert into public.sections (page_id, key, type, label, sort_order) select id, 'hero_section', 'hero', 'Hero Section', 0 from public.pages where slug = 'blogs' on conflict (page_id, key) do nothing;
@@ -212,15 +212,6 @@ insert into public.product_categories (
   'sprinklers', 'sprinkler', 'رشاشات الحريق', 'Fire Sprinklers', 'براندين MECH وReliable – ثلاثة أنواع لكل براند، وكل نوع بثلاثة أشكال: متدلي وقائم وجانبي.', 'Two brands, MECH and Reliable – three types each, every type in three styles: pendent, upright and sidewall.', 'رشاشات معتمدة UL وFM بحساسية حرارية دقيقة واستجابة سريعة للسيطرة على انتشار الحريق، مع مقاومة عالية للتآكل. متوفرة بدرجات حرارة 68° و79° و93° مئوية.', 'UL Listed & FM Approved sprinklers with precise thermal sensing and rapid response to control fire spread, with high corrosion resistance. Available in 68°, 79° and 93°C ratings.', '/images/catalog/cover-sprinklers.jpg', array['UL', 'FM']::text[], 'UL 199 · NFPA 13',
   '½" NPT K5.6 · ¾" NPT K8.0', '½" NPT K5.6 · ¾" NPT K8.0', 'حتى 175 PSI', 'Up to 175 PSI', '[{"name_ar":"MECH","name_en":"MECH"},{"name_ar":"Reliable","name_en":"Reliable"}]'::jsonb, '[{"label_ar":"الأشكال","label_en":"Styles","value_ar":"متدلي / قائم / جانبي","value_en":"Pendent / Upright / Sidewall"},{"label_ar":"درجات التشغيل","label_en":"Temperatures","value_ar":"68°C · 79°C · 93°C","value_en":"68°C · 79°C · 93°C"},{"label_ar":"التشطيب","label_en":"Finish","value_ar":"نحاسي / كروم / أبيض","value_en":"Brass / chrome / white"}]'::jsonb,
   array['رشاشات استجابة قياسية', 'رشاشات استجابة سريعة', 'رشاشات تغطية ممتدة']::text[], array['Standard response sprinklers', 'Quick response sprinklers', 'Extended coverage sprinklers']::text[], array['أنظمة رطبة وجافة', 'ما قبل التفعيل', 'المكاتب والفنادق والمستشفيات', 'المخازن والمصانع']::text[], array['Wet & dry systems', 'Pre-action', 'Offices, hotels & hospitals', 'Warehouses & factories']::text[], array['/images/brochure/mech-sprinkler.jpg']::text[], 3
-) on conflict (slug) do nothing;
-insert into public.product_categories (
-  slug, icon, name_ar, name_en, short_ar, short_en, description_ar, description_en, cover_image, certs, standards,
-  sizes_label_ar, sizes_label_en, pressure_label_ar, pressure_label_en, brands, specs,
-  items_ar, items_en, applications_ar, applications_en, brochure, sort_order
-) values (
-  'cabinets', 'cabinet', 'صناديق الحريق', 'Fire Cabinets', 'صناديق حريق للخراطيم والطفايات ومحابس الإطفاء، تركيب ظاهر أو مدفون.', 'Fire cabinets for hose reels, extinguishers and landing valves – surface or recessed.', 'صناديق حريق من الصاج المدهون إلكتروستاتيك أحمر، بأبواب زجاج أو صاج، لتركيب بكرة الخرطوم والطفاية ومحبس الإطفاء في الممرات وبيوت السلالم.', 'Red powder-coated steel fire cabinets with glass or steel doors, housing hose reels, extinguishers and landing valves in corridors and stairwells.', null, array['NFPA']::text[], 'NFPA 14 · EN 671',
-  'مقاسات قياسية أو حسب الطلب', 'Standard or custom sizes', 'غير منطبق', 'N/A', '[]'::jsonb, '[{"label_ar":"الخامة","label_en":"Material","value_ar":"صاج مدهون إلكتروستاتيك","value_en":"Powder-coated steel"},{"label_ar":"التركيب","label_en":"Installation","value_ar":"ظاهر / مدفون","value_en":"Surface / recessed"},{"label_ar":"الباب","label_en":"Door","value_ar":"زجاج / صاج","value_en":"Glass / steel"}]'::jsonb,
-  array['صندوق بكرة خرطوم', 'صندوق خرطوم وطفاية', 'صندوق محبس إطفاء']::text[], array['Hose reel cabinet', 'Hose reel & extinguisher cabinet', 'Landing valve cabinet']::text[], array['الممرات وبيوت السلالم', 'المولات والمستشفيات', 'المصانع والمخازن']::text[], array['Corridors & stairwells', 'Malls & hospitals', 'Factories & warehouses']::text[], '{}'::text[], 4
 ) on conflict (slug) do nothing;
 
 -- Products (sub-types)
@@ -342,27 +333,6 @@ insert into public.products (
 ) select id, 'extended', 'sidewall', 'رشاشات التغطية الممتدة EC', 'Extended Coverage (EC)', 'مساحة تغطية أكبر لكل رشاش لتقليل عدد الرشاشات والمواسير.', 'Larger coverage per head to reduce the number of sprinklers and pipe runs.', null, array['¾" NPT · K8.0']::text[],
   '175 PSI', '175 PSI', 'UL 199 · FM', '[]'::jsonb, '[{"key":"pendent","image":null},{"key":"upright","image":null},{"key":"sidewall","image":null}]'::jsonb, '[{"name_ar":"MECH","name_en":"MECH","logo":"/images/brands/mech.png","image":null,"desc_ar":"رشاشات MECH للتغطية الممتدة.","desc_en":"MECH extended coverage sprinklers.","datasheet":null,"is_primary":true},{"name_ar":"Reliable","name_en":"Reliable","logo":"/images/brands/reliable.png","image":null,"desc_ar":"رشاشات Reliable للتغطية الممتدة.","desc_en":"Reliable extended coverage sprinklers.","datasheet":null,"is_primary":false}]'::jsonb, 2
 from public.product_categories where slug = 'sprinklers'
-on conflict (category_id, slug) do nothing;
-insert into public.products (
-  category_id, slug, icon, name_ar, name_en, description_ar, description_en, cover_image, sizes,
-  pressure_ar, pressure_en, standard, specs, shapes, brands, sort_order
-) select id, 'hose-reel', 'cabinet', 'صندوق بكرة خرطوم', 'Hose Reel Cabinet', 'صندوق لبكرة خرطوم حريق مع محبس، باب زجاج أو صاج.', 'Cabinet for a fire hose reel with valve, glass or steel door.', null, array['1" × 30 m']::text[],
-  'غير منطبق', 'N/A', 'EN 671-1', '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, 0
-from public.product_categories where slug = 'cabinets'
-on conflict (category_id, slug) do nothing;
-insert into public.products (
-  category_id, slug, icon, name_ar, name_en, description_ar, description_en, cover_image, sizes,
-  pressure_ar, pressure_en, standard, specs, shapes, brands, sort_order
-) select id, 'hose-extinguisher', 'cabinet', 'صندوق خرطوم وطفاية', 'Hose Reel & Extinguisher Cabinet', 'صندوق مزدوج لبكرة الخرطوم وطفاية الحريق في وحدة واحدة.', 'Combined cabinet for a hose reel and a fire extinguisher.', null, array['1" × 30 m + 6 kg']::text[],
-  'غير منطبق', 'N/A', 'EN 671-1', '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, 1
-from public.product_categories where slug = 'cabinets'
-on conflict (category_id, slug) do nothing;
-insert into public.products (
-  category_id, slug, icon, name_ar, name_en, description_ar, description_en, cover_image, sizes,
-  pressure_ar, pressure_en, standard, specs, shapes, brands, sort_order
-) select id, 'landing-valve', 'cabinet', 'صندوق محبس إطفاء', 'Landing Valve Cabinet', 'صندوق لمحبس الإطفاء 2½" لاستخدام فرق الدفاع المدني.', 'Cabinet for a 2½" landing valve used by fire brigades.', null, array['1½"', '2½"']::text[],
-  'غير منطبق', 'N/A', 'NFPA 14', '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, 2
-from public.product_categories where slug = 'cabinets'
 on conflict (category_id, slug) do nothing;
 
 -- Blog articles

@@ -184,15 +184,6 @@ const icons = {
   ),
   sprinkler: () => <Sprinkler />,
   fitting: () => <Piped d="M20 60 V38 Q20 20 38 20 H60" />,
-  cabinet: () => (
-    <g stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round">
-      <rect x="10" y="6" width="44" height="52" rx="3" fill={RED} fillOpacity="0.85" stroke={RED} />
-      <rect x="15" y="11" width="34" height="42" rx="2" fill="#dff1ff" fillOpacity="0.25" stroke="#fff" strokeWidth="1.5" />
-      <circle cx="32" cy="28" r="11" stroke="#fff" />
-      <circle cx="32" cy="28" r="4" fill="#fff" stroke="none" />
-      <path d="M22 46 H42" stroke="#fff" />
-    </g>
-  ),
 };
 
 export default function ShapeIcon({ name, className = 'h-16 w-16' }) {

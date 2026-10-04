@@ -34,7 +34,7 @@ export const dict = {
       products: {
         eyebrow: 'الكتالوج',
         title: ['منتجات معتمدة', 'لكل مشروع وكل ضغط تشغيل'],
-        desc: 'خمسة خطوط إنتاج رئيسية من مصانع عالمية، معتمدة UL و FM، ومطابقة لمعايير ASTM و ASME و NFPA.',
+        desc: 'أربعة خطوط إنتاج رئيسية من مصانع عالمية، معتمدة UL و FM، ومطابقة لمعايير ASTM و ASME و NFPA.',
       },
       blog: {
         eyebrow: 'المدونة',
@@ -191,7 +191,7 @@ export const dict = {
       products: {
         eyebrow: 'Catalog',
         title: ['Certified Products', 'for Every Project & Pressure'],
-        desc: 'Five core product lines from world-class manufacturers — UL Listed, FM Approved and compliant with ASTM, ASME and NFPA.',
+        desc: 'Four core product lines from world-class manufacturers — UL Listed, FM Approved and compliant with ASTM, ASME and NFPA.',
       },
       blog: {
         eyebrow: 'Blog',
