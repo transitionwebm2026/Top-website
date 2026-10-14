@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Bold, Eye, Heading2, Heading3, ImagePlus, Italic, Link2, List, ListOrdered, PencilLine, Quote } from 'lucide-react';
+import { Bold, Eye, Heading2, Heading3, ImagePlus, Italic, Link2, List, ListOrdered, PencilLine, Quote, Table } from 'lucide-react';
 import ArticleBody from '@/components/blog/ArticleBody';
 import { useUpload } from '@/lib/admin/hooks';
 import { useAdmin } from '../AdminContext';
@@ -44,6 +44,22 @@ export default function MarkdownEditor({ value = '', onChange, dir, rows = 16 })
     requestAnimationFrame(() => el.focus());
   };
 
+  /** Insert a 3-column table as its own block, with the first heading selected. */
+  const insertTable = () => {
+    const el = area.current;
+    const at = el.selectionEnd;
+    const before = value.slice(0, at);
+    const lead = !before || before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n';
+    const col = t('md.column');
+    const table = `| ${col} 1 | ${col} 2 | ${col} 3 |\n| --- | --- | --- |\n|  |  |  |\n|  |  |  |\n\n`;
+    onChange(before + lead + table + value.slice(at));
+    requestAnimationFrame(() => {
+      el.focus();
+      const s = at + lead.length + 2;
+      el.setSelectionRange(s, s + col.length + 2);
+    });
+  };
+
   const onImage = async (ev) => {
     const f = ev.target.files?.[0];
     ev.target.value = '';
@@ -65,6 +81,7 @@ export default function MarkdownEditor({ value = '', onChange, dir, rows = 16 })
     [ListOrdered, t('md.numbered'), () => prefix((i) => `${i + 1}. `)],
     [Quote, t('md.quote'), () => prefix('> ')],
     [Link2, t('md.link'), () => wrap('[', '](https://)', t('md.linkText'))],
+    [Table, t('md.table'), insertTable],
   ];
 
   return (

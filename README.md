@@ -41,7 +41,8 @@ link previews need absolute image URLs, and a static page has no request host to
    `…_cms_schema.sql` creates the tables, RLS policies, helper functions and the public `media` bucket;
    `…_contact_attachments.sql` adds contact-form attachments (private `contact-attachments` bucket);
    `…_catalogs.sql` adds the `/catalog` page and its `catalogs` table, and puts a *Catalog* link after
-   *Products* in the navbar and footer. Each file is safe to re-run.
+   *Products* in the navbar and footer; `…_articles.sql` adds five product articles (seamless pipes, Sch 40 vs
+   Sch 80, malleable iron fittings, MECH valves, fire sprinklers) to the blog. Each file is safe to re-run.
 2. **Default content** — run `supabase/seed.sql`. Idempotent: re-running never overwrites dashboard edits.
 3. **First admin** — create the user in *Authentication → Users → Add user* (auto-confirm), then:
    ```sql
@@ -62,7 +63,7 @@ link previews need absolute image URLs, and a static page has no request host to
 | About Us | Hero, history timeline, mission & goals, certification badges, legal documents (image + PDF) |
 | Market / Products | Category CRUD, product items (brands, shapes, sizes, datasheets, gallery), catalog hero |
 | Catalogs | PDF catalogs for `/catalog` (cover, page count and size read from the PDF on save), page hero & CTA |
-| Blogs | Markdown articles in AR/EN, hero vs grid placement, drafts & scheduled dates |
+| Blogs | Markdown articles in AR/EN with tables (`<br>` for a line break inside a cell), hero vs grid placement, drafts & scheduled dates |
 | Contact & Enquiries | Contact-form inbox (status, notes, reply), phones/email/address/map, contact page copy |
 | Global Settings | Navbar & footer links, WhatsApp/call buttons, social links, logos & theme colours, SEO, UI translations |
 

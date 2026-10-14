@@ -129,18 +129,18 @@ export default function BlogView({ articles = [], gridHeading }) {
 
         {rest.length > 0 && heading && <SectionHeading className="mt-24" eyebrow={heading.eyebrow} title={heading.title} desc={heading.description} />}
 
-        {/* 3x2 staggered grid — middle column is offset for rhythm */}
-        <Stagger className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3" gap={0.1}>
-          {rest.map((a, i) => (
-            <StaggerItem key={a.id} className={i % 3 === 1 ? 'lg:translate-y-10' : ''}>
+        {/* Two articles per row, aligned */}
+        <Stagger className="mt-14 grid gap-8 md:grid-cols-2" gap={0.1}>
+          {rest.map((a) => (
+            <StaggerItem key={a.id}>
               <GlassCard as="article" className="group flex h-full flex-col overflow-hidden p-3 hover:-translate-y-2">
-                <button onClick={() => setOpen(a)} className="relative z-10 block h-52 overflow-hidden rounded-2xl bg-white" aria-label={pick(a.title)}>
+                <button onClick={() => setOpen(a)} className="relative z-10 block h-56 overflow-hidden rounded-2xl bg-white sm:h-64 lg:h-80" aria-label={pick(a.title)}>
                   {a.image && (
                     <Image
                       src={a.image}
                       alt=""
                       fill
-                      sizes="(max-width:768px) 95vw, 400px"
+                      sizes="(max-width:768px) 95vw, 620px"
                       className="object-cover object-top transition duration-700 group-hover:scale-110 group-hover:rotate-1"
                     />
                   )}

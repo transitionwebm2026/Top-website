@@ -326,7 +326,9 @@ html[data-lang-pending] body {
   padding-inline-start: 1.4rem;
   list-style: decimal;
 }
-.prose-article ol li::before { display: none; }
+.prose-article ol > li::before { display: none; }
+.prose-article ol > li::marker { color: var(--color-gold); font-weight: 700; }
+.prose-article li > ul { margin: 0.4rem 0 0.6rem; }
 .prose-article blockquote p { margin: 0; color: inherit; }
 .prose-article h3 {
   font-size: 1.3rem;
@@ -366,10 +368,44 @@ html[lang='en'] .prose-article p { line-height: 1.85; }
   padding: 0.9rem 1.2rem;
   margin: 1.5rem 0;
   background: rgb(205 176 116 / 0.07);
-  border-radius: 0 12px 12px 0;
+  border-start-end-radius: 12px;
+  border-end-end-radius: 12px;
   color: var(--color-gold-light);
   font-weight: 600;
 }
+/* Tables: scroll sideways inside their frame on narrow screens (ArticleBody wraps them). */
+.prose-article .table-scroll {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border: 1px solid rgb(205 176 116 / 0.22);
+  border-radius: 16px;
+  background: rgb(8 23 15 / 0.35);
+}
+.prose-article table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+.prose-article th,
+.prose-article td {
+  min-width: 8.5rem;
+  padding: 0.75rem 1rem;
+  text-align: start;
+  vertical-align: top;
+  line-height: 1.75;
+  border-bottom: 1px solid rgb(205 176 116 / 0.12);
+}
+.prose-article th + th,
+.prose-article td + td { border-inline-start: 1px solid rgb(205 176 116 / 0.08); }
+.prose-article th {
+  background: rgb(205 176 116 / 0.14);
+  color: var(--color-gold-light);
+  font-weight: 700;
+}
+.prose-article td { color: rgb(238 241 236 / 0.82); }
+.prose-article td:first-child strong { color: var(--color-gold-light); }
+.prose-article tbody tr:nth-child(even) { background: rgb(255 255 255 / 0.025); }
+.prose-article tbody tr:last-child td { border-bottom: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
