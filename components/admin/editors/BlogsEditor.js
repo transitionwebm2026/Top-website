@@ -4,7 +4,6 @@ import { Newspaper, Star } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { throwIf } from '@/lib/admin/hooks';
 import { BLOG_STATUS, blogFields } from '@/lib/admin/collections';
-import { revalidateCms } from '@/app/admin/actions';
 import PageEditor from '../PageEditor';
 import { useAdmin } from '../AdminContext';
 import CollectionManager, { Muted } from '../CollectionManager';
@@ -15,7 +14,6 @@ import { Badge, Button } from '../ui';
 async function makeHero(id) {
   const { error } = await createClient().rpc('set_hero_blog', { p_id: id });
   throwIf(error);
-  await revalidateCms();
 }
 
 function ArticlesManager() {

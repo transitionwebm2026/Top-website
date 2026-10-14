@@ -1,15 +1,15 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { MotionConfig } from 'framer-motion';
+import { DEFAULT_LANG, applyLang, savedLang } from '@/lib/lang';
+import { live, useLiveContent } from '@/lib/cms/live';
 
 const LanguageContext = createContext(null);
-const COOKIE = 'tp-lang';
 
 // Namespaces the components read from; guaranteed to exist so a missing
 // translation renders empty instead of throwing.
-const NAMESPACES = ['common', 'nav', 'cta', 'products', 'blog', 'contact', 'footer', 'shapes'];
+const NAMESPACES = ['common', 'nav', 'cta', 'products', 'catalog', 'blog', 'contact', 'footer', 'shapes'];
 function withNamespaces(d = {}) {
   const out = { ...d };
   NAMESPACES.forEach((ns) => (out[ns] ||= {}));
@@ -17,29 +17,54 @@ function withNamespaces(d = {}) {
 }
 
 /**
- * The language lives in a cookie so the server renders the right language,
- * direction and page title on the very first paint (no Arabic → English flash).
- *
- * `dictionary` is the UI text from the `translations` table for both languages
- * ({ ar: {...}, en: {...} }), so toggling language never waits on the network.
+ * Language state for a static page (site and dashboard): starts in the default
+ * language the HTML was built in, switches to the visitor's saved language
+ * right after hydration, then keeps the `tp-lang` cookie and <html lang/dir> in sync.
  */
-export function LanguageProvider({ initialLang = 'ar', dictionary, children }) {
-  const [lang, setLangState] = useState(initialLang);
-  const router = useRouter();
-  const first = useRef(true);
+export function useSavedLang() {
+  const [lang, setLang] = useState(DEFAULT_LANG);
+  const [ready, setReady] = useState(false);
+
+  useLayoutEffect(() => {
+    setLang(savedLang());
+    setReady(true);
+  }, []);
 
   useEffect(() => {
-    const el = document.documentElement;
-    el.lang = lang;
-    el.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    document.cookie = `${COOKIE}=${lang}; path=/; max-age=31536000; samesite=lax`;
-    // Re-fetch server data (page <title>, metadata) in the new language.
-    if (first.current) first.current = false;
-    else router.refresh();
-  }, [lang, router]);
+    if (ready) applyLang(lang);
+  }, [lang, ready]);
 
-  const setLang = useCallback((l) => setLangState(l === 'en' ? 'en' : 'ar'), []);
-  const toggle = useCallback(() => setLangState((l) => (l === 'ar' ? 'en' : 'ar')), []);
+  return [lang, setLang];
+}
+
+/**
+ * Keeps the tab title at `title`. The static HTML carries the Arabic title and
+ * Next.js re-applies it after client navigations, so changes to <head> are watched.
+ */
+export function useDocumentTitle(title) {
+  useEffect(() => {
+    if (!title) return;
+    const apply = () => {
+      if (document.title !== title) document.title = title;
+    };
+    apply();
+    const observer = new MutationObserver(apply);
+    observer.observe(document.head, { subtree: true, childList: true, characterData: true });
+    return () => observer.disconnect();
+  }, [title]);
+}
+
+/**
+ * `dictionary` is the UI text from the `translations` table for both languages
+ * ({ ar: {...}, en: {...} }), so toggling language never waits on the network.
+ * It is built into the page and refreshed from Supabase once the page loads.
+ */
+export function LanguageProvider({ dictionary: built, children }) {
+  const [lang, setLangState] = useSavedLang();
+  const { dictionary } = useLiveContent({ dictionary: built }, { dictionary: live.dictionary });
+
+  const setLang = useCallback((l) => setLangState(l === 'en' ? 'en' : 'ar'), [setLangState]);
+  const toggle = useCallback(() => setLangState((l) => (l === 'ar' ? 'en' : 'ar')), [setLangState]);
 
   const dicts = useMemo(() => ({ ar: withNamespaces(dictionary?.ar), en: withNamespaces(dictionary?.en) }), [dictionary]);
 

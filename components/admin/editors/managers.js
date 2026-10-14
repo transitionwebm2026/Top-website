@@ -15,7 +15,10 @@ export function PartnersManager() {
       table="partners_and_projects"
       eq={{ kind: 'partner' }}
       title={{ en: 'Partner logos', ar: 'شعارات الشركاء' }}
-      description={{ en: 'Shown in the scrolling marquee on the home page.', ar: 'تظهر في الشريط المتحرك بالصفحة الرئيسية.' }}
+      description={{
+        en: 'Shown in the logo wall on the home page; a logo with a website links to it.',
+        ar: 'تظهر في شبكة الشعارات بالصفحة الرئيسية، ويفتح الشعار موقع الشريك إن وُجد.',
+      }}
       noun={{ en: 'partner', ar: 'شريك' }}
       fields={partnerFields}
       imageField="image_url"
@@ -50,8 +53,8 @@ export function DocumentsManager() {
       table="company_documents"
       title={{ en: 'Legal documents', ar: 'المستندات الرسمية' }}
       description={{
-        en: 'Official registrations shown in the About page gallery (image preview + optional PDF).',
-        ar: 'المستندات الرسمية المعروضة في صفحة من نحن (صورة للمعاينة + ملف PDF اختياري).',
+        en: 'Official registrations and approval certificates shown in the About page gallery (image preview + optional PDF, which opens in the page-turning viewer). A certificate whose title has a badge code (e.g. “UL …”) gets that seal.',
+        ar: 'المستندات الرسمية وشهادات الاعتماد المعروضة في صفحة من نحن (صورة للمعاينة + ملف PDF اختياري يُفتح في عارض تقليب الصفحات). الشهادة التي يحتوي عنوانها على رمز شارة (مثل «UL …») يظهر عليها ختمها.',
       }}
       noun={{ en: 'document', ar: 'مستند' }}
       fields={documentFields}

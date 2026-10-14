@@ -1,13 +1,17 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Archive, Inbox, Mail, MessagesSquare, Phone, Save, Trash2 } from 'lucide-react';
+import { Archive, Inbox, Mail, MessagesSquare, Paperclip, Phone, Save, Trash2 } from 'lucide-react';
 import { useTable } from '@/lib/admin/hooks';
+import { ATTACHMENT_BUCKET } from '@/lib/attachments';
+import { createClient } from '@/lib/supabase/client';
 import { settingsGroups } from '@/lib/admin/collections';
+import { waNumber } from '@/lib/phone';
 import { WhatsAppIcon } from '@/components/ui/BrandIcons';
 import PageEditor from '../PageEditor';
 import { useAdmin } from '../AdminContext';
 import { Dialog, useFeedback } from '../feedback';
+import InboxAttachments from '../InboxAttachments';
 import { Badge, Button, Card, CardHeader, EmptyState, ErrorNote, Label, Select, Spinner, Textarea, cx } from '../ui';
 import SettingsForm from './SettingsForm';
 
@@ -49,9 +53,16 @@ export function Submissions({ limit }) {
   };
 
   const del = async (r) => {
-    if (!(await confirm({ title: t('inbox.deleteTitle'), message: t('inbox.deleteMsg', { name: r.name, email: r.email }), confirmLabel: t('common.delete'), danger: true }))) return;
+    const files = r.attachments || [];
+    const message = t('inbox.deleteMsg', { name: r.name, email: r.email }) + (files.length ? ` ${t('inbox.deleteFiles', { count: files.length })}` : '');
+    if (!(await confirm({ title: t('inbox.deleteTitle'), message, confirmLabel: t('common.delete'), danger: true }))) return;
     try {
       await remove(r.id);
+      // The message is gone either way; a file that fails to delete only takes space.
+      if (files.length) {
+        const { error: err } = await createClient().storage.from(ATTACHMENT_BUCKET).remove(files.map((f) => f.path));
+        if (err) console.warn('[inbox] attachments not deleted:', err.message);
+      }
       setOpenId(null);
       refreshNewMessages();
       toast(t('inbox.deleted'));
@@ -68,8 +79,6 @@ export function Submissions({ limit }) {
       fail(e);
     }
   };
-
-  const waDigits = (p) => p.replace(/\D/g, '');
 
   return (
     <Card>
@@ -113,6 +122,12 @@ export function Submissions({ limit }) {
                     </span>
                     <Badge tone={toneOf(r.status)}>{t(`status.${r.status}`)}</Badge>
                     <span className="text-xs text-white/35">{fmt(r.created_at)}</span>
+                    {r.attachments?.length > 0 && (
+                      <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-gold-light/80" title={t('inbox.attachments')}>
+                        <Paperclip size={12} />
+                        {r.attachments.length}
+                      </span>
+                    )}
                   </span>
                   <span className="mt-0.5 block truncate text-sm text-white/50" dir="auto">
                     {r.subject ? <b className="font-semibold text-white/70">{r.subject} — </b> : null}
@@ -146,6 +161,7 @@ export function Submissions({ limit }) {
             <p className="rounded-2xl border border-white/10 bg-black/20 p-4 leading-relaxed whitespace-pre-wrap text-white/85" dir="auto">
               {open.message}
             </p>
+            {open.attachments?.length > 0 && <InboxAttachments files={open.attachments} />}
 
             <div className="grid gap-4 sm:grid-cols-[12rem_1fr]">
               <div>
@@ -174,7 +190,7 @@ export function Submissions({ limit }) {
               >
                 {t('inbox.reply')}
               </Button>
-              <Button icon={WhatsAppIcon} href={`https://wa.me/${waDigits(open.phone)}`} external>
+              <Button icon={WhatsAppIcon} href={`https://wa.me/${waNumber(open.phone)}`} external>
                 {t('inbox.whatsapp')}
               </Button>
               <Button variant="ghost" icon={Save} onClick={saveNotes} disabled={(open.notes || '') === notes}>

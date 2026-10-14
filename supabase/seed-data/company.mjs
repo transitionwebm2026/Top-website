@@ -152,4 +152,27 @@ export const documents = [
     title: { ar: 'بطاقة سجل المستوردين', en: 'Importers Register Card' },
     desc: { ar: 'الهيئة العامة للرقابة على الصادرات والواردات', en: 'General Organization for Export & Import Control' },
   },
+  // Approval certificates: the PDF opens in the page-turning viewer.
+  {
+    id: 'ul',
+    type: 'certificate',
+    image: '/images/docs/ul-certificate.jpg',
+    file: '/certificates/ul-malleable-iron-fittings.pdf',
+    title: { ar: 'شهادة مطابقة UL', en: 'UL Certificate of Compliance' },
+    desc: {
+      ar: 'وصلات الحديد المطاوع بالمواصفة البريطانية ISO 49 / EN 10242 — شهادة رقم EX6624',
+      en: 'British Standard malleable iron fittings (ISO 49 / EN 10242) — certificate no. EX6624',
+    },
+  },
+  {
+    id: 'fm',
+    type: 'certificate',
+    image: '/images/docs/fm-certificate.jpg',
+    file: '/certificates/fm-malleable-iron-fittings.pdf',
+    title: { ar: 'شهادة اعتماد FM', en: 'FM Approvals Certificate of Compliance' },
+    desc: {
+      ar: 'وصلات الحديد المطاوع بالمواصفة البريطانية — رقم الاعتماد 3038663',
+      en: 'British Standard malleable iron fittings — approval ID 3038663',
+    },
+  },
 ];

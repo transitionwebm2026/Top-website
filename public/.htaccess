@@ -1,0 +1,58 @@
+# TOP POWER — static site (Next.js `output: 'export'`) on Hostinger (Apache / LiteSpeed).
+# Copied to out/ by `npm run build`; upload the contents of out/ to public_html.
+#
+# Every page is a folder with an index.html (trailingSlash: true): /about/ → about/index.html,
+# /products/pipes/ → products/pipes/index.html. Apache serves them directly, so a reload or a
+# shared link never 404s. There is deliberately no "everything → /index.html" SPA fallback:
+# it would show the home page's HTML on every unknown URL instead of a real 404.
+
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Always HTTPS (Hostinger's free SSL; also correct behind its proxy/CDN).
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Old dashboard alias: /dashboard/… → /admin/…
+  RewriteRule ^dashboard(?:/(.*))?$ /admin/$1 [L,R=301]
+
+  # /about → /about/ (page folders), keeping the query string (e.g. /admin/login?next=…).
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^(.*[^/])$ /$1/ [L,R=301]
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddType font/woff2 .woff2
+  AddType image/webp .webp
+  # pdf.js decoders for the catalog viewer (public/pdfjs/)
+  AddType application/wasm .wasm
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json image/svg+xml
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Pages and their navigation payloads (index.txt): always revalidate, so a new upload shows at once.
+  <FilesMatch "\.(html|txt)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+  # Scripts, styles and fonts are only ever emitted by the build under content-hashed names (_next/static).
+  <FilesMatch "\.(js|css|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  # Images and PDFs in public/ keep their names when replaced: cache for a week.
+  <FilesMatch "\.(jpe?g|png|webp|avif|gif|svg|ico|pdf)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>

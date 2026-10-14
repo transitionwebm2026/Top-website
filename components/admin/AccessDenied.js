@@ -1,20 +1,17 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { LogOut, ShieldAlert } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { useSavedLang } from '@/components/providers/LanguageProvider';
 import { languageApi } from './AdminContext';
 import { Button } from './ui';
 
 /** Signed in, but the profile is not an admin (or the schema is not installed yet). */
-export default function AccessDenied({ email, hasProfile, lang = 'ar' }) {
-  const router = useRouter();
+export default function AccessDenied({ email, hasProfile }) {
+  const [lang] = useSavedLang();
   const { t, dir } = languageApi(lang);
-  const logout = async () => {
-    await createClient().auth.signOut();
-    router.replace('/admin/login');
-    router.refresh();
-  };
+  // AdminGuard sends the signed-out user to the login page.
+  const logout = () => createClient().auth.signOut();
 
   return (
     <main className="grid min-h-screen place-items-center px-4" dir={dir} lang={lang}>

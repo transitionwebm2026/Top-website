@@ -20,6 +20,7 @@ import {
   Tag,
   ZoomIn,
 } from 'lucide-react';
+import CatalogShowcase from '@/components/catalogs/CatalogShowcase';
 import { useLang } from '@/components/providers/LanguageProvider';
 import { useSite } from '@/components/providers/SiteProvider';
 import GlassCard from '@/components/ui/GlassCard';
@@ -28,10 +29,15 @@ import Modal from '@/components/ui/Modal';
 import SectionHeading from '@/components/ui/SectionHeading';
 import { WhatsAppIcon } from '@/components/ui/BrandIcons';
 import { Reveal, Stagger, StaggerItem } from '@/components/ui/Reveal';
-import ProductVisual from './ProductVisual';
+import { savesData, whenIdle } from '@/lib/idle';
+import ProductVisual, { preloadProductPhoto } from './ProductVisual';
 import ShapeIcon from './ShapeIcon';
 
-const ease = [0.22, 1, 0.36, 1];
+// Header entrances are CSS (globals.css), staggered with inline delays.
+const delay = (s) => ({ animationDelay: `${s}s` });
+// Rendered sizes of the group panel's main photo and of the shape tiles (also used to preload them).
+const PANEL_SIZES = '(max-width:1024px) 95vw, 560px';
+const SHAPE_SIZES = '120px';
 const sizeRange = (s) => (s.length > 1 ? `${s[0]} – ${s[s.length - 1]}` : s[0]);
 
 /* ------------------------------------------------------------------ header */
@@ -56,20 +62,15 @@ function Header({ product, onPickGroup }) {
     <section className="relative isolate overflow-hidden px-4 pt-32 pb-16 sm:px-6 lg:px-8">
       <div className="absolute inset-0 -z-20">
         {(product.brochure[0] || product.image) && (
-          <Image src={product.brochure[0] || product.image} alt="" fill priority sizes="100vw" className="scale-110 object-cover blur-md" />
+          // Blurred, under a dark overlay: a small copy looks the same and loads far faster.
+          <Image src={product.brochure[0] || product.image} alt="" fill priority sizes="128px" className="scale-110 object-cover blur-md" />
         )}
       </div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-emerald-ink/90 via-emerald-ink/85 to-emerald-ink" />
       <div className="grid-texture absolute inset-0 -z-10" />
 
       <div className="mx-auto max-w-7xl">
-        <motion.nav
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease }}
-          aria-label={t.common.breadcrumb}
-          className="flex flex-wrap items-center gap-2 text-sm text-white/55"
-        >
+        <nav aria-label={t.common.breadcrumb} className="flex animate-rise flex-wrap items-center gap-2 text-sm text-white/55">
           <Link href="/" className="hover:text-gold">
             {t.nav.home}
           </Link>
@@ -79,33 +80,28 @@ function Header({ product, onPickGroup }) {
           </Link>
           <Crumb size={14} />
           <span className="font-semibold text-gold-light">{pick(product.name)}</span>
-        </motion.nav>
+        </nav>
 
         <div className="mt-8 grid items-start gap-12 lg:grid-cols-[1.15fr_1fr]">
           <div>
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1, ease }} className="flex flex-wrap gap-2">
+            <div className="flex animate-rise flex-wrap gap-2" style={delay(0.05)}>
               {product.certs.map((c) => (
                 <span key={c} className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-bold text-gold-light">
                   <BadgeCheck size={14} /> {c}
                 </span>
               ))}
-            </motion.div>
+            </div>
             <h1 className="mt-5 overflow-hidden pb-2 text-4xl leading-tight font-black sm:text-5xl lg:text-6xl">
-              <motion.span className="block" initial={{ y: '100%', opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.9, delay: 0.15, ease }}>
+              <span className="block animate-rise-line" style={delay(0.1)}>
                 {pick(product.name)}
-              </motion.span>
+              </span>
             </h1>
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease }}
-              className="mt-5 max-w-2xl text-lg leading-loose text-white/70"
-            >
+            <p className="mt-5 max-w-2xl animate-rise text-lg leading-loose text-white/70" style={delay(0.2)}>
               {pick(product.description)}
-            </motion.p>
+            </p>
 
             {/* Sub-type quick links */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4, ease }} className="mt-6 flex flex-wrap gap-2">
+            <div className="mt-6 flex animate-rise flex-wrap gap-2" style={delay(0.28)}>
               {product.groups.map((g) => (
                 <button
                   key={g.id}
@@ -118,11 +114,11 @@ function Header({ product, onPickGroup }) {
                   {pick(g.name)}
                 </button>
               ))}
-            </motion.div>
+            </div>
 
-            <Stagger className="mt-8 grid gap-3 sm:grid-cols-2" gap={0.08} delay={0.45}>
-              {facts.map(({ icon: Icon, label, value }) => (
-                <StaggerItem key={label}>
+            <Stagger className="mt-8 grid gap-3 sm:grid-cols-2" gap={0.08} delay={0.1}>
+              {facts.map(({ icon: Icon, label, value }, i) => (
+                <StaggerItem key={i}>
                   <GlassCard className="h-full p-4">
                     <div className="relative z-10 flex items-center gap-2 text-sm font-semibold text-gold">
                       <Icon size={16} /> {label}
@@ -133,7 +129,7 @@ function Header({ product, onPickGroup }) {
               ))}
             </Stagger>
 
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6, ease }} className="mt-9 flex flex-wrap gap-4">
+            <div className="mt-9 flex animate-rise flex-wrap gap-4" style={delay(0.4)}>
               <MagneticButton href={waHref(`${t.cta.quote}: ${pick(product.name)}`)} external variant="whatsapp">
                 <WhatsAppIcon width={20} height={20} />
                 {t.cta.quote}
@@ -141,15 +137,10 @@ function Header({ product, onPickGroup }) {
               <MagneticButton href="#types" external variant="glass">
                 {tp.rangeEyebrow}
               </MagneticButton>
-            </motion.div>
+            </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.25, ease }}
-            className="mx-auto w-full max-w-md"
-          >
+          <div className="mx-auto w-full max-w-md animate-pop-in" style={delay(0.15)}>
             <div className="relative">
               <div className="absolute -inset-3 rotate-2 rounded-[30px] border border-gold/30" />
               {hasBrochure ? (
@@ -196,7 +187,7 @@ function Header({ product, onPickGroup }) {
                 ))}
               </div>
             )}
-          </motion.div>
+          </div>
         </div>
       </div>
 
@@ -292,7 +283,7 @@ function GroupPanel({ group }) {
         <div className="group relative overflow-hidden rounded-3xl border border-gold/25">
           {/* Keyed so it replays a CSS fade on each brand switch; no exit wait, never stuck hidden. */}
           <div key={`${image}-${brandIdx}-${photo}`} className="animate-fade-in">
-            <ProductVisual src={image} icon={group.icon} alt={label} className="aspect-[4/3]" sizes="(max-width:1024px) 95vw, 560px" imgClassName="p-6" />
+            <ProductVisual src={image} icon={group.icon} alt={label} className="aspect-[4/3]" sizes={PANEL_SIZES} imgClassName="p-6" />
           </div>
           {brand && (
             <span className="absolute top-4 start-4 inline-flex items-center gap-2 rounded-full bg-emerald-deep/90 py-1 ps-1 pe-3 text-xs font-bold text-gold backdrop-blur">
@@ -313,7 +304,7 @@ function GroupPanel({ group }) {
                   photo === src ? 'border-gold shadow-[0_0_16px_rgba(205,176,116,0.5)]' : 'border-transparent opacity-70 hover:opacity-100'
                 }`}
               >
-                <Image src={src} alt="" fill sizes="64px" unoptimized className="object-contain p-1" />
+                <Image src={src} alt="" fill sizes="64px" className="object-contain p-1" />
               </button>
             ))}
           </div>
@@ -430,7 +421,7 @@ function GroupPanel({ group }) {
                       on ? 'border-gold shadow-[0_0_20px_-4px_rgba(205,176,116,0.7)]' : 'border-gold/20 hover:border-gold/60'
                     }`}
                   >
-                    <ProductVisual src={s.image} icon={s.key} className="aspect-square" sizes="120px" imgClassName="p-2" note={false} />
+                    <ProductVisual src={s.image} icon={s.key} className="aspect-square" sizes={SHAPE_SIZES} imgClassName="p-2" note={false} />
                     <span className={`block px-1 py-2 text-xs font-bold ${on ? 'bg-gold text-emerald-ink' : 'bg-white/[0.03] text-white/85'}`}>
                       {t.shapes[s.key] || s.key}
                     </span>
@@ -595,8 +586,11 @@ function OtherLines({ others }) {
 
 /* -------------------------------------------------------------------- page */
 
-/** One product line page. `product` = mapped category with groups; `others` = the other lines. */
-export default function ProductPageView({ product, others = [] }) {
+/**
+ * One product line page. `product` = mapped category with groups; `others` = the
+ * other lines; `catalogs` = the PDF catalogs (this line's are shown first).
+ */
+export default function ProductPageView({ product, others = [], catalogs = [] }) {
   const [active, setActive] = useState(product.groups[0]?.id);
 
   // Deep link: /products/<line>#<group> opens that sub-type tab.
@@ -614,18 +608,17 @@ export default function ProductPageView({ product, others = [] }) {
   }, [product]);
 
   // Warm the browser cache with every photo on this page (all tabs, brands and
-  // shapes) so switching filters shows the image instantly.
+  // shapes), at the size each is shown, so switching filters shows the image
+  // instantly. Waits until the page itself has loaded; skipped on data saver.
   useEffect(() => {
-    const urls = new Set();
+    if (savesData()) return;
+    const photos = new Map(); // src → sizes
     product.groups.forEach((g) => {
-      if (g.image) urls.add(g.image);
-      g.brands.forEach((b) => b.image && urls.add(b.image));
-      g.shapes?.forEach((s) => s.image && urls.add(s.image));
+      if (g.image) photos.set(g.image, PANEL_SIZES);
+      g.brands.forEach((b) => b.image && photos.set(b.image, PANEL_SIZES));
+      g.shapes?.forEach((s) => s.image && !photos.has(s.image) && photos.set(s.image, SHAPE_SIZES));
     });
-    urls.forEach((u) => {
-      const img = new window.Image();
-      img.src = u;
-    });
+    return whenIdle(() => photos.forEach((sizes, src) => preloadProductPhoto(src, sizes)), 4000);
   }, [product]);
 
   const pickGroup = useCallback((gid, scroll = false) => {
@@ -639,6 +632,7 @@ export default function ProductPageView({ product, others = [] }) {
       <Header product={product} onPickGroup={pickGroup} />
       <Overview product={product} />
       <Types product={product} active={active} onPickGroup={pickGroup} />
+      <CatalogShowcase catalogs={catalogs} line={product.id} />
       <OtherLines others={others} />
     </>
   );

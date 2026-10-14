@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, Phone, X } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
 import { useSite } from '@/components/providers/SiteProvider';
+import { savesData, whenIdle } from '@/lib/idle';
 import { FacebookIcon, InstagramIcon, TikTokIcon } from '@/components/ui/BrandIcons';
 import Logo from '@/components/ui/Logo';
 
@@ -77,16 +78,20 @@ export default function Navbar() {
 
   useEffect(() => setOpen(false), [pathname]);
 
+  // Links only prefetch while on screen, and on phones the menu links are not
+  // rendered until the menu opens: fetch every main page once the browser is
+  // idle so any tap opens instantly. Skipped when the visitor asked to save data.
+  const router = useRouter();
+  useEffect(() => {
+    if (savesData()) return;
+    return whenIdle(() => navItems.forEach((item) => item.href?.startsWith('/') && router.prefetch(item.href)), 3000);
+  }, [navItems, router]);
+
   const isActive = (href) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
   return (
     <>
-      <motion.header
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed inset-x-0 top-0 z-50 px-2 pt-2 sm:px-5 sm:pt-4"
-      >
+      <header className="fixed inset-x-0 top-0 z-50 animate-drop-in px-2 pt-2 sm:px-5 sm:pt-4">
         <nav
           className={`mx-auto flex max-w-7xl items-center justify-between gap-2 rounded-full py-1.5 ps-2.5 pe-1.5 transition-all duration-500 sm:gap-4 sm:px-5 sm:py-2 ${
             scrolled ? 'glass-strong shadow-[0_20px_60px_-20px_rgba(0,0,0,0.8)]' : 'glass'
@@ -137,7 +142,7 @@ export default function Navbar() {
             </button>
           </div>
         </nav>
-      </motion.header>
+      </header>
 
       <AnimatePresence>
         {open && (

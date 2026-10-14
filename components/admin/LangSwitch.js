@@ -2,16 +2,10 @@
 
 import { cx } from './ui';
 
-const LANG_COOKIE = 'tp-lang';
-
-/** Persist the language in the cookie shared with the public site and flip the document direction. */
-export function applyLang(lang) {
-  document.cookie = `${LANG_COOKIE}=${lang}; path=/; max-age=31536000; samesite=lax`;
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-}
-
-/** EN / ع switch for the dashboard (also sets the live site's language). */
+/**
+ * EN / ع switch for the dashboard. The language state (useSavedLang) also sets
+ * the live site's language through the shared `tp-lang` cookie.
+ */
 export default function LangSwitch({ lang, onChange, label }) {
   return (
     <div className="flex rounded-xl border border-gold/20 bg-white/[0.03] p-0.5 text-xs font-bold" role="group" aria-label={label} dir="ltr">

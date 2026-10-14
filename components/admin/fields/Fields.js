@@ -6,11 +6,13 @@
 // Labels, help and placeholders may be strings or `{ en, ar }` objects.
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Copy, GripVertical, Plus, Trash2, Wand2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, ExternalLink, GripVertical, Plus, Trash2, Wand2 } from 'lucide-react';
 import ShapeIcon from '@/components/products/ShapeIcon';
 import { ICON_NAMES, emptyRow, isLocalized } from '@/lib/cms/schema';
+import { isWaNumber, waNumber } from '@/lib/phone';
 import { useAdmin } from '../AdminContext';
 import { Button, Help, IconButton, Input, Label, LangChip, Select, Textarea, Toggle, cx } from '../ui';
+import MapInput from './MapInput';
 import { GalleryInput, MediaInput } from './MediaInput';
 import MarkdownEditor from './MarkdownEditor';
 import TagsInput from './TagsInput';
@@ -24,9 +26,6 @@ export const slugify = (s = '') =>
     .replace(/[\s_]+/g, '-')
     .replace(/-+/g, '-')
     .slice(0, 80);
-
-/** `<iframe src="…">` pasted from Google Maps → just the src URL. */
-const extractSrc = (v) => v.match(/src=["']([^"']+)["']/i)?.[1] ?? v;
 
 const toLocalInput = (iso) => {
   if (!iso) return '';
@@ -53,7 +52,7 @@ function Control({ field, value, onChange, lang, row, context }) {
       );
     case 'image':
     case 'file':
-      return <MediaInput value={value} onChange={onChange} kind={field.type} folder={field.folder || context?.folder} />;
+      return <MediaInput value={value} onChange={onChange} kind={field.type} accept={field.accept} folder={field.folder || context?.folder} />;
     case 'gallery':
       return <GalleryInput value={value} onChange={onChange} folder={field.folder || context?.folder} />;
     case 'tags':
@@ -125,15 +124,36 @@ function Control({ field, value, onChange, lang, row, context }) {
           </Button>
         </div>
       );
-    case 'embed':
+    case 'map':
+      return <MapInput id={common.id} value={value} onChange={onChange} />;
+    case 'whatsapp': {
+      // Typed as-is (+20 …, 00 20 …, 010 …); toPayload stores the digits-only form wa.me needs.
+      const digits = waNumber(value);
       return (
         <div className="space-y-2">
-          <Input {...common} value={value ?? ''} onChange={(e) => onChange(extractSrc(e.target.value.trim()))} placeholder={t('common.embedPlaceholder')} dir="ltr" />
-          {value && /^https:\/\//.test(value) && (
-            <iframe title={t('common.mapPreview')} src={value} className="map-dark h-48 w-full rounded-xl border border-white/10" loading="lazy" />
-          )}
+          <Input {...common} type="tel" inputMode="tel" autoComplete="off" value={value ?? ''} onChange={(e) => onChange(e.target.value)} dir="ltr" />
+          {digits &&
+            (isWaNumber(digits) ? (
+              <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-white/50">
+                {t('common.waOpens')}
+                <span className="font-mono text-white/80" dir="ltr">
+                  +{digits}
+                </span>
+                <a
+                  href={`https://wa.me/${digits}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-semibold text-whatsapp hover:underline"
+                >
+                  <ExternalLink size={12} /> {t('common.waTest')}
+                </a>
+              </p>
+            ) : (
+              <p className="text-xs text-red-300">{t('common.waInvalid')}</p>
+            ))}
         </div>
       );
+    }
     case 'repeater':
       return <Repeater field={field} value={value} onChange={onChange} context={context} />;
     default:

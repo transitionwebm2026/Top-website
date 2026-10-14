@@ -14,13 +14,62 @@
   --font-en: var(--font-montserrat), system-ui, sans-serif;
 
   --animate-float: float 6s ease-in-out infinite;
-  --animate-marquee: marquee 40s linear infinite;
   --animate-pulse-ring: pulse-ring 2.2s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
   --animate-border-spin: border-spin 6s linear infinite;
   --animate-shimmer: shimmer 3.5s linear infinite;
   /* Enter animations for swapped content: pure CSS, so content always ends visible. */
   --animate-panel-in: panel-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-fade-in: fade-in 0.35s ease-out both;
+  /* Entrances of above-the-fold content: CSS runs from the first paint of the
+     static HTML instead of waiting for JavaScript. `backwards` hides elements
+     during their delay and leaves no style behind once they finish. Delays are
+     set inline (animation-delay). */
+  --animate-page-in: page-in 0.3s ease-out backwards;
+  --animate-rise: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  --animate-rise-line: rise-line 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  --animate-slide-in: slide-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  --animate-pop-in: pop-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  --animate-drop-in: drop-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  --animate-nudge: nudge 2s ease-in-out infinite;
+  /* Hero backdrop: transform-only loops, run by the compositor (no repaints). */
+  --animate-hero-zoom: hero-zoom 18s linear infinite alternate;
+  --animate-hero-settle: hero-settle 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-sheen: sheen 16s linear infinite;
+
+  @keyframes hero-zoom {
+    from { transform: scale(1.05); }
+    to { transform: scale(1.15); }
+  }
+  @keyframes hero-settle {
+    from { transform: scale(1.15); }
+    to { transform: scale(1.05); }
+  }
+  /* Slides a 300%-wide gradient across its frame and back. */
+  @keyframes sheen {
+    50% { transform: translateX(-66.667%); }
+  }
+
+  @keyframes page-in {
+    from { opacity: 0; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(20px); }
+  }
+  @keyframes rise-line {
+    from { opacity: 0; transform: translateY(105%); }
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(var(--slide-from, 30px)); }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  }
+  @keyframes drop-in {
+    from { opacity: 0; transform: translateY(-100px); }
+  }
+  @keyframes nudge {
+    50% { transform: translateY(8px); }
+  }
 
   @keyframes panel-in {
     from { opacity: 0; transform: translateY(16px); }
@@ -33,10 +82,6 @@
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
-  }
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
   }
   @keyframes pulse-ring {
     0% { transform: scale(1); opacity: 0.6; }
@@ -68,20 +113,40 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(1200px 600px at 85% -10%, rgb(33 87 51 / 0.55), transparent 60%),
-    radial-gradient(900px 500px at -10% 30%, rgb(205 176 116 / 0.08), transparent 60%),
-    radial-gradient(1000px 700px at 50% 110%, rgb(21 55 38 / 0.8), transparent 60%),
-    var(--color-emerald-ink);
-  background-attachment: fixed;
   color: #eef1ec;
   font-family: var(--font-ar);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
 
+/* Page backdrop, fixed to the viewport. A fixed layer of its own is composited
+   once, where `background-attachment: fixed` would repaint the whole screen on
+   every scroll frame. 100vh (the largest viewport on phones) keeps it from
+   resizing while the browser's toolbar hides. */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgb(33 87 51 / 0.55), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgb(205 176 116 / 0.08), transparent 60%),
+    radial-gradient(1000px 700px at 50% 110%, rgb(21 55 38 / 0.8), transparent 60%),
+    var(--color-emerald-ink);
+}
+
 html[lang='en'] body {
   font-family: var(--font-en);
+}
+
+/* English visitor: the static HTML is Arabic, so it stays hidden until the app
+   has switched language (LANG_SCRIPT in lib/lang.js). */
+html[data-lang-pending] body {
+  visibility: hidden;
 }
 
 /* Arabic inputs inside the (English) dashboard keep the Arabic typeface */

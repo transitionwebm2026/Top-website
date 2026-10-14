@@ -1,7 +1,8 @@
 import { Cairo, Montserrat } from 'next/font/google';
-import { getLang } from '@/lib/lang';
+import { DEFAULT_LANG, LANG_SCRIPT } from '@/lib/lang';
 import { getSiteSettings } from '@/lib/cms/queries';
 import { ogImage, siteOrigin, socialMeta } from '@/lib/cms/seo';
+import { SUPABASE_URL } from '@/lib/supabase/config';
 import ThemeStyle from '@/components/providers/ThemeStyle';
 import './globals.css';
 
@@ -10,8 +11,9 @@ const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat
 
 /** Site-wide <head> defaults, all from `site_settings`, incl. the link-preview image. */
 export async function generateMetadata() {
-  const [lang, s] = await Promise.all([getLang(), getSiteSettings()]);
-  const metadataBase = await siteOrigin(s?.seo.siteUrl);
+  const lang = DEFAULT_LANG;
+  const s = await getSiteSettings();
+  const metadataBase = siteOrigin(s?.seo.siteUrl);
   if (!s) return { metadataBase, title: 'TOP POWER', ...socialMeta({ title: 'TOP POWER', image: ogImage(null, 'TOP POWER'), lang }) };
 
   const title = s.seo.title[lang] || s.name[lang];
@@ -31,11 +33,23 @@ export async function generateViewport() {
 }
 
 export default async function RootLayout({ children }) {
-  // The site and the dashboard both follow the `tp-lang` cookie (Arabic by default).
-  const [lang, settings] = await Promise.all([getLang(), getSiteSettings()]);
+  const settings = await getSiteSettings();
 
+  // Built in Arabic; LANG_SCRIPT switches English visitors (`tp-lang` cookie) before the first paint.
   return (
-    <html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} className={`${cairo.variable} ${montserrat.variable}`} suppressHydrationWarning>
+    // data-scroll-behavior: page changes jump to the top instead of smooth-scrolling there.
+    <html
+      lang={DEFAULT_LANG}
+      dir="rtl"
+      data-scroll-behavior="smooth"
+      className={`${cairo.variable} ${montserrat.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: LANG_SCRIPT }} />
+        {/* Content refreshes from Supabase right after load: open the connection early. */}
+        {SUPABASE_URL && <link rel="preconnect" href={SUPABASE_URL} crossOrigin="anonymous" />}
+      </head>
       <body>
         <ThemeStyle theme={settings?.theme} />
         {children}

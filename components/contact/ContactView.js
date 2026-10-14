@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2, Clock, Loader2, Mail, MapPin, Phone, Send } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
 import { useSite } from '@/components/providers/SiteProvider';
+import { whenIdle } from '@/lib/idle';
 import GlassCard from '@/components/ui/GlassCard';
 import { Reveal } from '@/components/ui/Reveal';
+import AttachmentField from './AttachmentField';
 
 const fields = [
   { name: 'name', type: 'text', autoComplete: 'name', half: true },
@@ -14,8 +16,10 @@ const fields = [
   { name: 'phone', type: 'tel', autoComplete: 'tel', half: true },
   { name: 'subject', type: 'text', half: true },
 ];
-// `website` is a honeypot: hidden from people, filled in by bots, rejected by the API.
+// `website` is a honeypot: hidden from people, filled in by bots, dropped by sendContactMessage.
 const empty = { name: '', email: '', phone: '', subject: '', message: '', website: '' };
+// The sender (and the Supabase client) is fetched once the visitor starts typing, not with the page.
+const loadSender = () => import('@/lib/cms/contact');
 
 function Field({ name, label, type = 'text', value, onChange, error, textarea, half: _half, ...rest }) {
   const Tag = textarea ? 'textarea' : 'input';
@@ -62,6 +66,12 @@ export default function ContactView({ content }) {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle'); // idle | sending | sent | error
   const [hover, setHover] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
+  useEffect(() => whenIdle(() => setMapReady(true), 2500), []);
+  const [files, setFiles] = useState([]); // [{ id, file, preview }]
+  const [progress, setProgress] = useState({}); // { [id]: 0..1 } while sending
+  // Attachments appear once their texts exist: they ship with the migration that creates the bucket.
+  const canAttach = Boolean(c.attachTitle);
 
   const onChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -81,18 +91,21 @@ export default function ContactView({ content }) {
     e.preventDefault();
     if (!validate()) return;
     setStatus('sending');
+    setProgress(Object.fromEntries(files.map((f) => [f.id, 0])));
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, lang }),
-      });
-      if (!res.ok) throw new Error();
+      const { sendContactMessage } = await loadSender();
+      await sendContactMessage(
+        { ...form, lang },
+        files.map((f) => f.file),
+        (i, p) => setProgress((cur) => ({ ...cur, [files[i].id]: p })),
+      );
       setStatus('sent');
       setForm(empty);
+      setFiles([]);
     } catch {
       setStatus('error');
     }
+    setProgress({});
   };
 
   const info = [
@@ -122,7 +135,7 @@ export default function ContactView({ content }) {
               <h2 className="text-2xl font-black sm:text-3xl">{copy.form_title}</h2>
               {copy.form_description && <p className="mt-2 text-white/60">{copy.form_description}</p>}
 
-              <form onSubmit={onSubmit} noValidate className="mt-8 grid gap-4 sm:grid-cols-2">
+              <form onSubmit={onSubmit} onFocus={() => loadSender().catch(() => {})} noValidate className="mt-8 grid gap-4 sm:grid-cols-2">
                 {fields.map((f) => (
                   <Field key={f.name} {...f} label={c[f.name]} value={form[f.name]} onChange={onChange} error={errors[f.name]} />
                 ))}
@@ -139,6 +152,11 @@ export default function ContactView({ content }) {
                 <div className="sm:col-span-2">
                   <Field name="message" label={c.message} textarea value={form.message} onChange={onChange} error={errors.message} />
                 </div>
+                {canAttach && (
+                  <div className="sm:col-span-2">
+                    <AttachmentField items={files} onChange={setFiles} progress={progress} disabled={status === 'sending'} t={c} />
+                  </div>
+                )}
 
                 <div className="flex flex-col gap-4 sm:col-span-2">
                   <motion.button
@@ -207,13 +225,16 @@ export default function ContactView({ content }) {
             </div>
             {site.mapEmbedUrl && (
               <div className="relative z-10 min-h-[300px] flex-1 overflow-hidden rounded-2xl border border-gold/25">
-                <iframe
-                  title={`${site.logoText} map`}
-                  src={site.mapEmbedUrl}
-                  className="map-dark absolute inset-0 h-full w-full"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
+                {/* Google Maps is ~400 KB of scripts: it loads once the page itself has, in a frame already sized for it. */}
+                {mapReady && (
+                  <iframe
+                    title={`${site.logoText} map`}
+                    src={site.mapEmbedUrl}
+                    className="map-dark absolute inset-0 h-full w-full animate-fade-in"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                )}
               </div>
             )}
           </GlassCard>

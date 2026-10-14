@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import { Languages, RotateCcw, Save, Search } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { throwIf, useTable } from '@/lib/admin/hooks';
-import { revalidateCms } from '@/app/admin/actions';
 import { useAdmin } from '../AdminContext';
 import { useFeedback } from '../feedback';
 import { Badge, Button, Card, CardHeader, EmptyState, ErrorNote, Input, LangChip, Spinner, cx } from '../ui';
@@ -46,7 +45,6 @@ export default function TranslationsEditor() {
       const payload = Object.entries(edits).map(([key, v]) => ({ key, ...v }));
       const { error: err } = await createClient().from('translations').upsert(payload, { onConflict: 'key' });
       throwIf(err);
-      await revalidateCms();
       await reload();
       setEdits({});
       toast(t('i18n.saved', { n: payload.length }));

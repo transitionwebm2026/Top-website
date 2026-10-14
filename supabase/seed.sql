@@ -18,7 +18,7 @@ insert into public.site_settings (
   '/images/logo.jpg', '/images/logo-full.jpg', '/images/logo.jpg', '/images/og-image.jpg', '#153726', '#215733', '#CDB074',
   array['+201000000000', '+201100000000']::text[], '+201000000000', '201000000000', 'مرحباً توب باور، أريد الاستفسار عن', 'Hello TOP POWER, I would like to ask about', 'info@example.com',
   'القاهرة - الأزبكية - 23 شارع عماد الدين', '23 Emad El-Din St., Azbakeya, Cairo, Egypt', 'السبت – الخميس · 9 ص – 6 م', 'Sat – Thu · 9 AM – 6 PM', 'https://maps.google.com/maps?q=23%20Emad%20El-Din%20Street%2C%20Azbakeya%2C%20Cairo%2C%20Egypt&z=16&output=embed',
-  'https://facebook.com/', 'https://instagram.com/', 'https://tiktok.com/', '[{"label_ar":"الرئيسية","label_en":"Home","href":"/","visible":true},{"label_ar":"من نحن","label_en":"About Us","href":"/about","visible":true},{"label_ar":"المنتجات والكتالوج","label_en":"Products & Catalog","href":"/products","visible":true},{"label_ar":"المدونة","label_en":"Blog","href":"/blog","visible":true},{"label_ar":"اتصل بنا","label_en":"Contact Us","href":"/contact","visible":true}]'::jsonb, '[{"label_ar":"الرئيسية","label_en":"Home","href":"/","visible":true},{"label_ar":"من نحن","label_en":"About Us","href":"/about","visible":true},{"label_ar":"المنتجات والكتالوج","label_en":"Products & Catalog","href":"/products","visible":true},{"label_ar":"المدونة","label_en":"Blog","href":"/blog","visible":true},{"label_ar":"اتصل بنا","label_en":"Contact Us","href":"/contact","visible":true}]'::jsonb,
+  'https://facebook.com/', 'https://instagram.com/', 'https://tiktok.com/', '[{"label_ar":"الرئيسية","label_en":"Home","href":"/","visible":true},{"label_ar":"من نحن","label_en":"About Us","href":"/about","visible":true},{"label_ar":"المنتجات","label_en":"Products","href":"/products","visible":true},{"label_ar":"الكتالوج","label_en":"Catalog","href":"/catalog","visible":true},{"label_ar":"المدونة","label_en":"Blog","href":"/blog","visible":true},{"label_ar":"اتصل بنا","label_en":"Contact Us","href":"/contact","visible":true}]'::jsonb, '[{"label_ar":"الرئيسية","label_en":"Home","href":"/","visible":true},{"label_ar":"من نحن","label_en":"About Us","href":"/about","visible":true},{"label_ar":"المنتجات","label_en":"Products","href":"/products","visible":true},{"label_ar":"الكتالوج","label_en":"Catalog","href":"/catalog","visible":true},{"label_ar":"المدونة","label_en":"Blog","href":"/blog","visible":true},{"label_ar":"اتصل بنا","label_en":"Contact Us","href":"/contact","visible":true}]'::jsonb,
   '700020654', '4648446200886003', true, 'UL · FM · LPCB · VdS · NFPA',
   null, 'توب باور – مستلزمات هندسية MEP', 'TOP POWER – MEP Engineering Supplies',
   'توب باور – مورّد أنظمة الحماية من الحريق ومستلزمات MEP المعتمدة UL / FM / LPCB / VdS في مصر والسعودية.',
@@ -29,7 +29,8 @@ insert into public.site_settings (
 insert into public.translations (key, value_ar, value_en) values
   ('nav.home', 'الرئيسية', 'Home'),
   ('nav.about', 'من نحن', 'About Us'),
-  ('nav.products', 'المنتجات والكتالوج', 'Products & Catalog'),
+  ('nav.products', 'المنتجات', 'Products'),
+  ('nav.catalog', 'الكتالوج', 'Catalog'),
   ('nav.blog', 'المدونة', 'Blog'),
   ('nav.contact', 'اتصل بنا', 'Contact Us'),
   ('common.langSwitch', 'EN', 'ع'),
@@ -110,6 +111,36 @@ insert into public.translations (key, value_ar, value_en) values
   ('common.empty', 'لا يوجد محتوى بعد.', 'Nothing here yet.'),
   ('footer.credit', 'تصميم وتطوير', 'Designed & developed by'),
   ('blog.empty', 'لا توجد مقالات منشورة بعد.', 'No published articles yet.'),
+  ('contact.attachTitle', 'إرفاق ملفات', 'Attach files'),
+  ('contact.optional', 'اختياري', 'optional'),
+  ('contact.attachDrop', 'اسحب الملفات وأفلتها هنا، أو', 'Drag & drop files here, or'),
+  ('contact.attachBrowse', 'اختر من جهازك', 'browse your device'),
+  ('contact.attachLimits', 'حتى {count} ملفات · {size} ميجابايت للملف', 'Up to {count} files · {size} MB each'),
+  ('contact.attachFull', 'وصلت للحد الأقصى من الملفات', 'Maximum number of files reached'),
+  ('contact.attachTooMany', 'يمكنك إرفاق {count} ملفات كحد أقصى', 'You can attach up to {count} files'),
+  ('contact.attachTooBig', '«{name}» أكبر من {size} ميجابايت', '“{name}” is larger than {size} MB'),
+  ('contact.attachBadType', '«{name}»: نوع غير مدعوم — صور أو PDF أو Excel فقط', '“{name}”: unsupported type — images, PDF or Excel only'),
+  ('contact.attachRemove', 'إزالة الملف', 'Remove file'),
+  ('catalog.browse', 'تصفّح', 'Browse'),
+  ('catalog.download', 'تحميل', 'Download'),
+  ('catalog.pages', 'الصفحات', 'Pages'),
+  ('catalog.size', 'الحجم', 'Size'),
+  ('catalog.format', 'الصيغة', 'Format'),
+  ('catalog.page', 'صفحة {page}', 'Page {page}'),
+  ('catalog.pageOf', 'صفحة {page} من {total}', 'Page {page} of {total}'),
+  ('catalog.loading', 'جاري فتح الكتالوج…', 'Opening the catalog…'),
+  ('catalog.error', 'تعذّر عرض الكتالوج هنا. يمكنك تحميله وفتحه على جهازك.', 'This catalog can’t be shown here. You can download it and open it on your device.'),
+  ('catalog.zoomIn', 'تكبير', 'Zoom in'),
+  ('catalog.zoomOut', 'تصغير', 'Zoom out'),
+  ('catalog.fullscreen', 'ملء الشاشة', 'Full screen'),
+  ('catalog.exitFullscreen', 'الخروج من ملء الشاشة', 'Exit full screen'),
+  ('catalog.hint', 'اسحب الصفحة أو استخدم الأسهم للتقليب', 'Swipe the page or use the arrows to turn it'),
+  ('catalog.empty', 'لا توجد كتالوجات منشورة بعد.', 'No catalogs published yet.'),
+  ('catalog.showcaseTitle', 'كتالوجات المنتجات بصيغة PDF', 'Product Catalogs in PDF'),
+  ('catalog.showcaseDesc', 'المواصفات وجداول المقاسات والموديلات من كتالوجات المصانع مباشرة: تصفّحها هنا صفحة بصفحة أو حمّلها على جهازك.', 'Specifications, size tables and models straight from the manufacturers’ catalogs — browse them here page by page or download them.'),
+  ('catalog.forLine', 'كتالوج هذا الخط', 'For this product line'),
+  ('catalog.choose', 'اختر كتالوجاً', 'Choose a catalog'),
+  ('catalog.all', 'كل الكتالوجات', 'All catalogs'),
   ('shapes.elbow90', 'كوع 90°', '90° Elbow'),
   ('shapes.elbow45', 'كوع 45°', '45° Elbow'),
   ('shapes.tee', 'تي', 'Tee'),
@@ -129,9 +160,10 @@ on conflict (key) do nothing;
 insert into public.pages (slug, path, title_ar, title_en, meta_title_ar, meta_title_en, meta_description_ar, meta_description_en, sort_order) values
   ('home', '/', 'الرئيسية', 'Home', null, null, null, null, 0),
   ('about_us', '/about', 'من نحن', 'About Us', 'من نحن', 'About Us', 'أكثر من 20 عاماً في توريد أنظمة الحماية من الحريق المعتمدة في مصر والسعودية.', '20+ years supplying approved fire protection systems in Egypt and KSA.', 1),
-  ('market', '/products', 'المنتجات والكتالوج', 'Products & Catalog', 'المنتجات والكتالوج', 'Products & Catalog', 'مواسير سيملس، وصلات، محابس ورشاشات حريق معتمدة UL / FM.', 'Seamless pipes, fittings, valves and sprinklers – UL / FM approved.', 2),
+  ('market', '/products', 'المنتجات', 'Products', 'المنتجات', 'Products', 'مواسير سيملس، وصلات، محابس ورشاشات حريق معتمدة UL / FM.', 'Seamless pipes, fittings, valves and sprinklers – UL / FM approved.', 2),
   ('blogs', '/blog', 'المدونة', 'Blog', 'المدونة', 'Blog', 'مقالات فنية عن أنظمة مكافحة الحريق والاعتمادات واختيار المواد.', 'Technical articles on fire protection systems, approvals and material selection.', 3),
-  ('contact_us', '/contact', 'اتصل بنا', 'Contact Us', 'اتصل بنا', 'Contact Us', 'تواصل مع توب باور – القاهرة، الأزبكية، 23 شارع عماد الدين.', 'Contact TOP POWER – 23 Emad El-Din St., Azbakeya, Cairo.', 4)
+  ('contact_us', '/contact', 'اتصل بنا', 'Contact Us', 'اتصل بنا', 'Contact Us', 'تواصل مع توب باور – القاهرة، الأزبكية، 23 شارع عماد الدين.', 'Contact TOP POWER – 23 Emad El-Din St., Azbakeya, Cairo.', 4),
+  ('catalogs', '/catalog', 'الكتالوج', 'Catalog', 'الكتالوج', 'Catalog', 'تصفح كتالوجات رشاشات الحريق والمواسير من المصانع العالمية التي تمثلها توب باور، أو حمّلها بصيغة PDF.', 'Browse fire sprinkler and pipe catalogs from the manufacturers TOP POWER represents, or download them as PDF.', 5)
 on conflict (slug) do nothing;
 
 -- Sections + bilingual content
@@ -175,6 +207,12 @@ insert into public.sections (page_id, key, type, label, sort_order) select id, '
 insert into public.section_content (section_id, content_ar, content_en) select s.id, '{"form_title":"أرسل لنا رسالة","form_description":"املأ النموذج وسيتواصل معك أحد مهندسينا خلال يوم عمل.","info_title":"بيانات الشركة","success_message":"تم إرسال رسالتك بنجاح، سنتواصل معك قريباً.","error_message":"تعذر الإرسال، حاول مرة أخرى أو تواصل عبر واتساب."}'::jsonb, '{"form_title":"Send Us a Message","form_description":"Fill in the form and one of our engineers will get back to you within one business day.","info_title":"Company Details","success_message":"Your message was sent successfully. We will contact you soon.","error_message":"Sending failed. Please try again or reach us on WhatsApp."}'::jsonb from public.sections s join public.pages p on p.id = s.page_id where p.slug = 'contact_us' and s.key = 'contact_form' on conflict (section_id) do nothing;
 insert into public.sections (page_id, key, type, label, sort_order) select id, 'pre_footer_cta', 'cta', 'Pre-footer CTA', 2 from public.pages where slug = 'contact_us' on conflict (page_id, key) do nothing;
 insert into public.section_content (section_id, content_ar, content_en) select s.id, '{"title":"جاهز تبدأ مشروعك القادم؟","description":"احصل على عرض سعر لمواسير، وصلات، محابس ورشاشات معتمدة مع توفر فوري من المخزون.","whatsapp_label":"واتساب","call_label":"اتصل بنا"}'::jsonb, '{"title":"Ready to start your next project?","description":"Get a quotation for certified pipes, fittings, valves and sprinklers with immediate stock availability.","whatsapp_label":"WhatsApp","call_label":"Call Us Now"}'::jsonb from public.sections s join public.pages p on p.id = s.page_id where p.slug = 'contact_us' and s.key = 'pre_footer_cta' on conflict (section_id) do nothing;
+insert into public.sections (page_id, key, type, label, sort_order) select id, 'hero_section', 'hero', 'Hero Section', 0 from public.pages where slug = 'catalogs' on conflict (page_id, key) do nothing;
+insert into public.section_content (section_id, content_ar, content_en) select s.id, '{"title":"كتالوجات منتجاتنا","title_highlight":"تصفّحها صفحة بصفحة","description":"كتالوجات المصانع التي نمثلها كما هي: المواصفات وجداول المقاسات والموديلات، تتصفحها هنا أو تحمّلها بصيغة PDF.","image":"/images/brochure/mech-sprinkler.jpg","cta_primary_label":"تواصل معنا","cta_primary_href":"/contact","cta_secondary_label":"استكشف منتجاتنا","cta_secondary_href":"/products","badges":[]}'::jsonb, '{"title":"Our Product Catalogs","title_highlight":"Page by Page","description":"The original catalogs of the manufacturers we represent: specifications, size tables and models — browse them here or download them as PDF.","image":"/images/brochure/mech-sprinkler.jpg","cta_primary_label":"Contact Us","cta_primary_href":"/contact","cta_secondary_label":"Explore Our Products","cta_secondary_href":"/products","badges":[]}'::jsonb from public.sections s join public.pages p on p.id = s.page_id where p.slug = 'catalogs' and s.key = 'hero_section' on conflict (section_id) do nothing;
+insert into public.sections (page_id, key, type, label, sort_order) select id, 'catalog_library', 'heading', 'Catalog Library Heading', 1 from public.pages where slug = 'catalogs' on conflict (page_id, key) do nothing;
+insert into public.section_content (section_id, content_ar, content_en) select s.id, '{"eyebrow":"مكتبة الكتالوجات","title":"اختر كتالوجاً وابدأ التصفح","description":""}'::jsonb, '{"eyebrow":"Catalog Library","title":"Pick a catalog and start browsing","description":""}'::jsonb from public.sections s join public.pages p on p.id = s.page_id where p.slug = 'catalogs' and s.key = 'catalog_library' on conflict (section_id) do nothing;
+insert into public.sections (page_id, key, type, label, sort_order) select id, 'pre_footer_cta', 'cta', 'Pre-footer CTA', 2 from public.pages where slug = 'catalogs' on conflict (page_id, key) do nothing;
+insert into public.section_content (section_id, content_ar, content_en) select s.id, '{"title":"جاهز تبدأ مشروعك القادم؟","description":"احصل على عرض سعر لمواسير، وصلات، محابس ورشاشات معتمدة مع توفر فوري من المخزون.","whatsapp_label":"واتساب","call_label":"اتصل بنا"}'::jsonb, '{"title":"Ready to start your next project?","description":"Get a quotation for certified pipes, fittings, valves and sprinklers with immediate stock availability.","whatsapp_label":"WhatsApp","call_label":"Call Us Now"}'::jsonb from public.sections s join public.pages p on p.id = s.page_id where p.slug = 'catalogs' and s.key = 'pre_footer_cta' on conflict (section_id) do nothing;
 
 -- Product categories
 insert into public.product_categories (
@@ -561,12 +599,14 @@ insert into public.blogs (
 ) on conflict (slug) do nothing;
 
 -- Company documents (only when the table is empty)
-insert into public.company_documents (doc_type, title_ar, title_en, description_ar, description_en, image_url, sort_order)
+insert into public.company_documents (doc_type, title_ar, title_en, description_ar, description_en, image_url, file_url, sort_order)
 select * from (values
-  ('tax_card', 'البطاقة الضريبية', 'Tax Card', 'مصلحة الضرائب المصرية', 'Egyptian Tax Authority', '/images/docs/tax-card.jpg', 0),
-  ('commercial_register', 'السجل التجاري', 'Commercial Register', 'مستخرج السجل التجاري (1-2)', 'Commercial register extract (1-2)', '/images/docs/commercial.jpg', 1),
-  ('vat', 'شهادة القيمة المضافة', 'VAT Certificate', 'شهادة التسجيل بضريبة القيمة المضافة', 'Value added tax registration certificate', '/images/docs/vat.jpg', 2),
-  ('importers_card', 'بطاقة سجل المستوردين', 'Importers Register Card', 'الهيئة العامة للرقابة على الصادرات والواردات', 'General Organization for Export & Import Control', '/images/docs/importers.jpg', 3)
+  ('tax_card', 'البطاقة الضريبية', 'Tax Card', 'مصلحة الضرائب المصرية', 'Egyptian Tax Authority', '/images/docs/tax-card.jpg', null, 0),
+  ('commercial_register', 'السجل التجاري', 'Commercial Register', 'مستخرج السجل التجاري (1-2)', 'Commercial register extract (1-2)', '/images/docs/commercial.jpg', null, 1),
+  ('vat', 'شهادة القيمة المضافة', 'VAT Certificate', 'شهادة التسجيل بضريبة القيمة المضافة', 'Value added tax registration certificate', '/images/docs/vat.jpg', null, 2),
+  ('importers_card', 'بطاقة سجل المستوردين', 'Importers Register Card', 'الهيئة العامة للرقابة على الصادرات والواردات', 'General Organization for Export & Import Control', '/images/docs/importers.jpg', null, 3),
+  ('certificate', 'شهادة مطابقة UL', 'UL Certificate of Compliance', 'وصلات الحديد المطاوع بالمواصفة البريطانية ISO 49 / EN 10242 — شهادة رقم EX6624', 'British Standard malleable iron fittings (ISO 49 / EN 10242) — certificate no. EX6624', '/images/docs/ul-certificate.jpg', '/certificates/ul-malleable-iron-fittings.pdf', 4),
+  ('certificate', 'شهادة اعتماد FM', 'FM Approvals Certificate of Compliance', 'وصلات الحديد المطاوع بالمواصفة البريطانية — رقم الاعتماد 3038663', 'British Standard malleable iron fittings — approval ID 3038663', '/images/docs/fm-certificate.jpg', '/certificates/fm-malleable-iron-fittings.pdf', 5)
 ) v where not exists (select 1 from public.company_documents);
 
 -- Partners & projects (only when the table is empty)
@@ -590,5 +630,13 @@ select * from (values
   ('project', 'البريد المصري', 'Egypt Post', 'مصر', 'Egypt', 'حكومي', 'Government', '/images/projects/p8.jpg', 6),
   ('project', 'البنك الزراعي المصري', 'Agricultural Bank of Egypt', 'مصر', 'Egypt', 'مصرفي', 'Banking', '/images/projects/p7.jpg', 7)
 ) v where not exists (select 1 from public.partners_and_projects);
+
+-- PDF catalogs (only when the table is empty)
+insert into public.catalogs (slug, title_ar, title_en, description_ar, description_en, category_ar, category_en, brand, category_id, file_url, cover_url, page_count, file_size, sort_order)
+select slug, title_ar, title_en, description_ar, description_en, category_ar, category_en, brand, (select id from public.product_categories where slug = v.line), file_url, cover_url, page_count, file_size, sort_order from (values
+  ('mech-fire-sprinklers', 'كتالوج رشاشات الحريق MECH', 'MECH Fire Sprinkler Catalog', 'رشاشات K80 وK115 وK161 بأنواعها القائم والمتدلي والجانبي، بسرعات استجابة مختلفة، مع جداول الموديلات ودرجات حرارة التشغيل.', 'K80, K115 and K161 sprinklers in upright, pendant and sidewall types with quick, standard and special response — model tables and operating temperatures.', 'رشاشات الحريق', 'Fire Sprinklers', 'MECH', 'sprinklers', '/catalogs/mech-fire-sprinklers.pdf', '/images/catalogs/mech-fire-sprinklers.jpg', 7, 2851699::bigint, 0),
+  ('interpipe-pipes', 'كتالوج مواسير INTERPIPE', 'INTERPIPE Pipe Catalog', 'مواسير سيملس وفق ASTM A106 / A53: الأقطار وسماكات الجدار والأوزان حسب ANSI/ASME B36.10M.', 'Seamless pipes to ASTM A106 / A53: outside diameters, wall thicknesses and weights per ANSI/ASME B36.10M.', 'المواسير', 'Pipes', 'INTERPIPE', 'pipes', '/catalogs/interpipe-pipes.pdf', '/images/catalogs/interpipe-pipes.jpg', 6, 480188::bigint, 1)
+) v (slug, title_ar, title_en, description_ar, description_en, category_ar, category_en, brand, line, file_url, cover_url, page_count, file_size, sort_order)
+where not exists (select 1 from public.catalogs);
 
 commit;

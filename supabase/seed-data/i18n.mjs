@@ -4,7 +4,8 @@ export const dict = {
     nav: {
       home: 'الرئيسية',
       about: 'من نحن',
-      products: 'المنتجات والكتالوج',
+      products: 'المنتجات',
+      catalog: 'الكتالوج',
       blog: 'المدونة',
       contact: 'اتصل بنا',
     },
@@ -35,6 +36,11 @@ export const dict = {
         eyebrow: 'الكتالوج',
         title: ['منتجات معتمدة', 'لكل مشروع وكل ضغط تشغيل'],
         desc: 'أربعة خطوط إنتاج رئيسية من مصانع عالمية، معتمدة UL و FM، ومطابقة لمعايير ASTM و ASME و NFPA.',
+      },
+      catalogs: {
+        eyebrow: 'مكتبة الكتالوجات',
+        title: ['كتالوجات منتجاتنا', 'تصفّحها صفحة بصفحة'],
+        desc: 'كتالوجات المصانع التي نمثلها كما هي: المواصفات وجداول المقاسات والموديلات، تتصفحها هنا أو تحمّلها بصيغة PDF.',
       },
       blog: {
         eyebrow: 'المدونة',
@@ -161,7 +167,8 @@ export const dict = {
     nav: {
       home: 'Home',
       about: 'About Us',
-      products: 'Products & Catalog',
+      products: 'Products',
+      catalog: 'Catalog',
       blog: 'Blog',
       contact: 'Contact Us',
     },
@@ -192,6 +199,11 @@ export const dict = {
         eyebrow: 'Catalog',
         title: ['Certified Products', 'for Every Project & Pressure'],
         desc: 'Four core product lines from world-class manufacturers — UL Listed, FM Approved and compliant with ASTM, ASME and NFPA.',
+      },
+      catalogs: {
+        eyebrow: 'Catalog Library',
+        title: ['Our Product Catalogs', 'Page by Page'],
+        desc: 'The original catalogs of the manufacturers we represent: specifications, size tables and models — browse them here or download them as PDF.',
       },
       blog: {
         eyebrow: 'Blog',
@@ -319,6 +331,7 @@ export const navItems = [
   { key: 'home', href: '/' },
   { key: 'about', href: '/about' },
   { key: 'products', href: '/products' },
+  { key: 'catalog', href: '/catalog' },
   { key: 'blog', href: '/blog' },
   { key: 'contact', href: '/contact' },
 ];

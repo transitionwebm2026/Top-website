@@ -19,7 +19,7 @@ export default function SetupNotice() {
             Run <code className="text-gold-light">supabase/migrations/*_cms_schema.sql</code>, then{' '}
             <code className="text-gold-light">supabase/seed.sql</code>, in the Supabase SQL Editor.
           </li>
-          <li>Reload this page.</li>
+          <li>Rebuild the site (<code className="text-gold-light">npm run build</code>) and upload the new <code>out/</code> folder.</li>
         </ol>
       </div>
     </main>

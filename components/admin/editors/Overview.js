@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, FileBadge, FolderTree, Handshake, Image as ImageIcon, Inbox, Languages, Newspaper, Package, Palette, PenSquare, Plus } from 'lucide-react';
+import { ArrowRight, BookOpen, FileBadge, FolderTree, Handshake, Image as ImageIcon, Inbox, Languages, Newspaper, Package, Palette, PenSquare, Plus } from 'lucide-react';
 import { useCounts } from '@/lib/admin/hooks';
 import { useAdmin } from '../AdminContext';
 import { Card, CardHeader, PageHeader, cx } from '../ui';
@@ -24,6 +24,7 @@ const SPECS = Object.fromEntries(STATS.map((s) => [s.key, s.spec]));
 const QUICK = [
   { href: '/admin/blogs', label: { en: 'Write an article', ar: 'كتابة مقال' }, icon: Plus },
   { href: '/admin/products', label: { en: 'Add a product', ar: 'إضافة منتج' }, icon: Package },
+  { href: '/admin/catalogs', label: { en: 'Upload a PDF catalog', ar: 'رفع كتالوج PDF' }, icon: BookOpen },
   { href: '/admin/home', label: { en: 'Edit the home hero', ar: 'تعديل واجهة الرئيسية' }, icon: PenSquare },
   { href: '/admin/settings', label: { en: 'Contact buttons & social', ar: 'أزرار التواصل والسوشيال' }, icon: Palette },
   { href: '/admin/settings', label: { en: 'UI translations', ar: 'نصوص الواجهة' }, icon: Languages },

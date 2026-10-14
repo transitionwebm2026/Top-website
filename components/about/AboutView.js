@@ -2,8 +2,9 @@
 
 import Image from 'next/image';
 import { useRef, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { FileDown, Maximize2, ShieldCheck, Target, ZoomIn, ZoomOut } from 'lucide-react';
+import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
+import { BookOpen, FileDown, Maximize2, ShieldCheck, Target, ZoomIn, ZoomOut } from 'lucide-react';
+import { FlipbookReader, preloadReader } from '@/components/catalogs/reader';
 import { useLang } from '@/components/providers/LanguageProvider';
 import GlassCard from '@/components/ui/GlassCard';
 import Modal from '@/components/ui/Modal';
@@ -84,7 +85,7 @@ function Certifications({ content }) {
         <SectionHeading eyebrow={c.eyebrow} title={c.title} />
         <Stagger className="mt-14 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-6" gap={0.08}>
           {c.items.map((item, i) => (
-            <StaggerItem key={`${item.code}-${i}`}>
+            <StaggerItem key={i}>
               <motion.div whileHover={{ y: -8, rotate: i % 2 ? 2 : -2 }} className="animate-float" style={{ animationDelay: `${-i * 0.8}s` }}>
                 <GlassCard className="flex h-full flex-col items-center p-6 text-center">
                   <div className="hex-clip-v relative z-10 grid h-24 w-[5.4rem] place-items-center bg-gradient-to-br from-gold-light via-gold to-gold-dark">
@@ -144,18 +145,35 @@ function MissionGoals({ content }) {
   );
 }
 
-/** `content` = `legal_docs` heading; `documents` = company_documents (image preview + optional PDF). */
-function DocumentsGallery({ content, documents }) {
+const isPdf = (url) => /\.pdf(?:$|[?#])/i.test(url || '');
+
+/**
+ * `content` = `legal_docs` heading; `documents` = company_documents (image preview + optional
+ * file), approval certificates included. A PDF opens in the page-turning viewer, an image in
+ * the zoom viewer. `codes` = the certification badge codes: the one in a certificate's title
+ * ("UL Certificate…" → UL) becomes its seal.
+ */
+function DocumentsGallery({ content, documents, codes = [] }) {
   const { pick } = useLang();
   const [active, setActive] = useState(null);
+  const [reading, setReading] = useState(null);
   const [zoomed, setZoomed] = useState(false);
   const [origin, setOrigin] = useState('50% 50%');
   const c = pick(content);
-  const viewable = documents.filter((d) => d.image);
+  const viewable = documents.filter((d) => d.image && !isPdf(d.file));
   if (!c || !documents.length) return null;
 
+  const sealFor = (d) => {
+    if (d.type !== 'certificate') return null;
+    const words = new Set(`${d.title.en} ${d.title.ar}`.toUpperCase().split(/[^A-Z0-9]+/));
+    return codes.find((code) => words.has(code.toUpperCase())) || null;
+  };
   const open = (d) => {
-    // PDF-only documents open the file directly.
+    if (isPdf(d.file)) {
+      setActive(null);
+      return setReading(d);
+    }
+    // Other files without a preview open directly.
     if (!d.image) return window.open(d.file, '_blank', 'noopener');
     setZoomed(false);
     setActive(d);
@@ -170,27 +188,62 @@ function DocumentsGallery({ content, documents }) {
     <section className="px-4 py-24 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading eyebrow={c.eyebrow} title={c.title} desc={c.description} />
-        <Stagger className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4" gap={0.1}>
-          {documents.map((d, i) => (
-            <StaggerItem key={d.id} className={i % 2 ? 'lg:mt-12' : ''}>
-              <GlassCard as="button" onClick={() => open(d)} className="group w-full p-4 text-start hover:-translate-y-2">
-                <div className="relative z-10 aspect-[4/3] overflow-hidden rounded-2xl bg-white">
-                  {d.image ? (
-                    <Image src={d.image} alt={pick(d.title)} fill sizes="(max-width:640px) 90vw, 320px" className="object-cover transition duration-700 group-hover:scale-110" />
-                  ) : (
-                    <div className="grid h-full place-items-center bg-emerald-night text-gold">
-                      <FileDown size={56} strokeWidth={1.2} />
-                    </div>
+        {/* Rows of three (two on tablets), every second document set a little lower */}
+        <Stagger as="ul" className="mt-14 flex flex-wrap justify-center gap-x-6 gap-y-8 sm:gap-y-20 sm:pb-12" gap={0.1}>
+          {documents.map((d, i) => {
+            const seal = sealFor(d);
+            const pdf = isPdf(d.file);
+            return (
+              <StaggerItem as="li" key={d.id} className={`w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc((100%-3rem)/3)] ${i % 2 ? 'sm:translate-y-12' : ''}`}>
+                <GlassCard
+                  as="button"
+                  type="button"
+                  onClick={() => open(d)}
+                  onPointerEnter={pdf ? preloadReader : undefined}
+                  className="group flex h-full w-full flex-col p-4 text-start hover:-translate-y-2"
+                >
+                  <span className="relative z-10 block w-full rounded-[18px] bg-gradient-to-br from-gold-light/70 via-gold/20 to-gold-dark/70 p-px shadow-[0_24px_50px_-24px_rgba(0,0,0,0.9)]">
+                    <span className="relative block aspect-[4/3] overflow-hidden rounded-[17px] bg-white">
+                      {d.image ? (
+                        <Image
+                          src={d.image}
+                          alt={pick(d.title)}
+                          fill
+                          sizes="(max-width:640px) 92vw, (max-width:1024px) 46vw, 420px"
+                          className={`object-cover transition duration-700 group-hover:scale-110 ${d.type === 'certificate' ? 'object-top' : ''}`}
+                        />
+                      ) : (
+                        <span className="grid h-full place-items-center bg-emerald-night text-gold">
+                          <FileDown size={56} strokeWidth={1.2} />
+                        </span>
+                      )}
+                      <span className="absolute inset-0 grid place-items-center bg-emerald-ink/0 transition group-hover:bg-emerald-ink/50">
+                        {pdf ? (
+                          <BookOpen className="scale-50 text-gold opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100" size={34} />
+                        ) : (
+                          <Maximize2 className="scale-50 text-gold opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100" size={34} />
+                        )}
+                      </span>
+                    </span>
+                  </span>
+                  {/* Issuer seal on a certificate's corner */}
+                  {seal && (
+                    <span className="absolute -end-3 -top-4 z-20 drop-shadow-[0_10px_16px_rgba(0,0,0,0.6)] transition duration-500 group-hover:rotate-6">
+                      <span className="hex-clip-v grid h-[3.6rem] w-[3.2rem] place-items-center bg-gradient-to-br from-gold-light via-gold to-gold-dark">
+                        <span className="hex-clip-v grid h-[3.2rem] w-[2.85rem] place-items-center bg-emerald-deep">
+                          <span dir="ltr" className="font-[family-name:var(--font-montserrat)] text-sm font-black text-gold">
+                            {seal}
+                          </span>
+                        </span>
+                      </span>
+                    </span>
                   )}
-                  <div className="absolute inset-0 grid place-items-center bg-emerald-ink/0 transition group-hover:bg-emerald-ink/50">
-                    <Maximize2 className="scale-50 text-gold opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100" size={34} />
-                  </div>
-                </div>
-                <h3 className="relative z-10 mt-4 text-lg font-bold">{pick(d.title)}</h3>
-                <p className="relative z-10 mt-1 text-sm text-white/55">{pick(d.desc)}</p>
-              </GlassCard>
-            </StaggerItem>
-          ))}
+                  <h3 className="relative z-10 mt-4 text-lg font-bold">{pick(d.title)}</h3>
+                  <p className="relative z-10 mt-1 text-sm leading-relaxed text-white/55">{pick(d.desc)}</p>
+                </GlassCard>
+              </StaggerItem>
+            );
+          })}
         </Stagger>
       </div>
 
@@ -242,18 +295,30 @@ function DocumentsGallery({ content, documents }) {
           </div>
         )}
       </Modal>
+
+      <AnimatePresence>
+        {reading && (
+          <FlipbookReader
+            key={reading.id}
+            catalog={{ file: reading.file, cover: reading.image, title: reading.title, category: reading.desc, brand: sealFor(reading) }}
+            onClose={() => setReading(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
 
 /** About page body. `sections` = the about_us page sections; `documents` = company_documents. */
 export default function AboutView({ sections = {}, documents = [] }) {
+  const badges = sections.certifications?.en?.items || sections.certifications?.ar?.items || [];
+  const codes = badges.map((b) => b.code).filter(Boolean);
   return (
     <>
       <Timeline content={sections.company_history} />
       <Certifications content={sections.certifications} />
       <MissionGoals content={sections.mission_vision} />
-      <DocumentsGallery content={sections.legal_docs} documents={documents} />
+      <DocumentsGallery content={sections.legal_docs} documents={documents} codes={codes} />
     </>
   );
 }

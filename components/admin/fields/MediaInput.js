@@ -16,8 +16,8 @@ const ACCEPT = {
 
 const isPdf = (url = '') => /\.pdf($|\?)/i.test(url);
 
-/** Single image or file: preview, upload to Storage, or paste a URL / site path. */
-export function MediaInput({ value, onChange, kind = 'image', folder = 'uploads' }) {
+/** Single image or file: preview, upload to Storage, or paste a URL / site path. `accept` narrows the file types. */
+export function MediaInput({ value, onChange, kind = 'image', accept, folder = 'uploads' }) {
   const { upload, uploading } = useUpload();
   const { toast, fail } = useFeedback();
   const { t } = useAdmin();
@@ -64,7 +64,7 @@ export function MediaInput({ value, onChange, kind = 'image', folder = 'uploads'
           )}
         </div>
       </div>
-      <input ref={input} type="file" accept={ACCEPT[kind]} className="hidden" onChange={onFile} />
+      <input ref={input} type="file" accept={accept || ACCEPT[kind]} className="hidden" onChange={onFile} />
     </div>
   );
 }

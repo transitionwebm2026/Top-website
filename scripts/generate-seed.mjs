@@ -14,6 +14,7 @@ import { site } from '../supabase/seed-data/site.mjs';
 import { products, brandLogos, SHAPES } from '../supabase/seed-data/products.mjs';
 import { brands, projects, certifications, timeline, missionGoals, documents } from '../supabase/seed-data/company.mjs';
 import { articles } from '../supabase/seed-data/blog.mjs';
+import { catalogs } from '../supabase/seed-data/catalogs.mjs';
 
 // ---------------------------------------------------------------- SQL helpers
 const q = (v) => (v === null || v === undefined ? 'null' : `'${String(v).replace(/'/g, "''")}'`);
@@ -86,6 +87,45 @@ const extra = {
   'common.empty': { ar: 'لا يوجد محتوى بعد.', en: 'Nothing here yet.' },
   'footer.credit': { ar: 'تصميم وتطوير', en: 'Designed & developed by' },
   'blog.empty': { ar: 'لا توجد مقالات منشورة بعد.', en: 'No published articles yet.' },
+  // Contact-form attachments (supabase/migrations/20261007000000_contact_attachments.sql)
+  'contact.attachTitle': { ar: 'إرفاق ملفات', en: 'Attach files' },
+  'contact.optional': { ar: 'اختياري', en: 'optional' },
+  'contact.attachDrop': { ar: 'اسحب الملفات وأفلتها هنا، أو', en: 'Drag & drop files here, or' },
+  'contact.attachBrowse': { ar: 'اختر من جهازك', en: 'browse your device' },
+  'contact.attachLimits': { ar: 'حتى {count} ملفات · {size} ميجابايت للملف', en: 'Up to {count} files · {size} MB each' },
+  'contact.attachFull': { ar: 'وصلت للحد الأقصى من الملفات', en: 'Maximum number of files reached' },
+  'contact.attachTooMany': { ar: 'يمكنك إرفاق {count} ملفات كحد أقصى', en: 'You can attach up to {count} files' },
+  'contact.attachTooBig': { ar: '«{name}» أكبر من {size} ميجابايت', en: '“{name}” is larger than {size} MB' },
+  'contact.attachBadType': { ar: '«{name}»: نوع غير مدعوم — صور أو PDF أو Excel فقط', en: '“{name}”: unsupported type — images, PDF or Excel only' },
+  'contact.attachRemove': { ar: 'إزالة الملف', en: 'Remove file' },
+  // Catalog viewer (supabase/migrations/20261011000000_catalogs.sql)
+  'catalog.browse': { ar: 'تصفّح', en: 'Browse' },
+  'catalog.download': { ar: 'تحميل', en: 'Download' },
+  'catalog.pages': { ar: 'الصفحات', en: 'Pages' },
+  'catalog.size': { ar: 'الحجم', en: 'Size' },
+  'catalog.format': { ar: 'الصيغة', en: 'Format' },
+  'catalog.page': { ar: 'صفحة {page}', en: 'Page {page}' },
+  'catalog.pageOf': { ar: 'صفحة {page} من {total}', en: 'Page {page} of {total}' },
+  'catalog.loading': { ar: 'جاري فتح الكتالوج…', en: 'Opening the catalog…' },
+  'catalog.error': {
+    ar: 'تعذّر عرض الكتالوج هنا. يمكنك تحميله وفتحه على جهازك.',
+    en: 'This catalog can’t be shown here. You can download it and open it on your device.',
+  },
+  'catalog.zoomIn': { ar: 'تكبير', en: 'Zoom in' },
+  'catalog.zoomOut': { ar: 'تصغير', en: 'Zoom out' },
+  'catalog.fullscreen': { ar: 'ملء الشاشة', en: 'Full screen' },
+  'catalog.exitFullscreen': { ar: 'الخروج من ملء الشاشة', en: 'Exit full screen' },
+  'catalog.hint': { ar: 'اسحب الصفحة أو استخدم الأسهم للتقليب', en: 'Swipe the page or use the arrows to turn it' },
+  'catalog.empty': { ar: 'لا توجد كتالوجات منشورة بعد.', en: 'No catalogs published yet.' },
+  // Catalogs on the product pages
+  'catalog.showcaseTitle': { ar: 'كتالوجات المنتجات بصيغة PDF', en: 'Product Catalogs in PDF' },
+  'catalog.showcaseDesc': {
+    ar: 'المواصفات وجداول المقاسات والموديلات من كتالوجات المصانع مباشرة: تصفّحها هنا صفحة بصفحة أو حمّلها على جهازك.',
+    en: 'Specifications, size tables and models straight from the manufacturers’ catalogs — browse them here page by page or download them.',
+  },
+  'catalog.forLine': { ar: 'كتالوج هذا الخط', en: 'For this product line' },
+  'catalog.choose': { ar: 'اختر كتالوجاً', en: 'Choose a catalog' },
+  'catalog.all': { ar: 'كل الكتالوجات', en: 'All catalogs' },
 };
 Object.assign(flat, extra);
 for (const [k, v] of Object.entries(SHAPES)) flat[`shapes.${k}`] = v;
@@ -109,7 +149,7 @@ const meta = {
   },
   market: {
     path: '/products',
-    title: { ar: 'المنتجات والكتالوج', en: 'Products & Catalog' },
+    title: { ar: 'المنتجات', en: 'Products' },
     desc: { ar: 'مواسير سيملس، وصلات، محابس ورشاشات حريق معتمدة UL / FM.', en: 'Seamless pipes, fittings, valves and sprinklers – UL / FM approved.' },
   },
   blogs: {
@@ -121,6 +161,14 @@ const meta = {
     path: '/contact',
     title: { ar: 'اتصل بنا', en: 'Contact Us' },
     desc: { ar: 'تواصل مع توب باور – القاهرة، الأزبكية، 23 شارع عماد الدين.', en: 'Contact TOP POWER – 23 Emad El-Din St., Azbakeya, Cairo.' },
+  },
+  catalogs: {
+    path: '/catalog',
+    title: { ar: 'الكتالوج', en: 'Catalog' },
+    desc: {
+      ar: 'تصفح كتالوجات رشاشات الحريق والمواسير من المصانع العالمية التي تمثلها توب باور، أو حمّلها بصيغة PDF.',
+      en: 'Browse fire sprinkler and pipe catalogs from the manufacturers TOP POWER represents, or download them as PDF.',
+    },
   },
 };
 
@@ -260,6 +308,16 @@ const sections = {
     ],
     ['pre_footer_cta', 'cta', 'Pre-footer CTA', cta],
   ],
+  catalogs: [
+    ['hero_section', 'hero', 'Hero Section', hero('catalogs', '/images/brochure/mech-sprinkler.jpg')],
+    [
+      'catalog_library',
+      'heading',
+      'Catalog Library Heading',
+      heading((l) => T(l).hero.catalogs.eyebrow, (l) => (l === 'ar' ? 'اختر كتالوجاً وابدأ التصفح' : 'Pick a catalog and start browsing')),
+    ],
+    ['pre_footer_cta', 'cta', 'Pre-footer CTA', cta],
+  ],
 };
 
 emit('-- Sections + bilingual content');
@@ -348,9 +406,16 @@ emit();
 const DOC_TYPES = { tax: 'tax_card', commercial: 'commercial_register', vat: 'vat', importers: 'importers_card' };
 
 emit('-- Company documents (only when the table is empty)');
-emit('insert into public.company_documents (doc_type, title_ar, title_en, description_ar, description_en, image_url, sort_order)');
+emit('insert into public.company_documents (doc_type, title_ar, title_en, description_ar, description_en, image_url, file_url, sort_order)');
 emit('select * from (values');
-emit(documents.map((d, i) => `  (${q(DOC_TYPES[d.id] || 'other')}, ${q(d.title.ar)}, ${q(d.title.en)}, ${q(d.desc.ar)}, ${q(d.desc.en)}, ${q(d.image)}, ${i})`).join(',\n'));
+emit(
+  documents
+    .map(
+      (d, i) =>
+        `  (${q(d.type || DOC_TYPES[d.id] || 'other')}, ${q(d.title.ar)}, ${q(d.title.en)}, ${q(d.desc.ar)}, ${q(d.desc.en)}, ${q(d.image)}, ${q(d.file)}, ${i})`,
+    )
+    .join(',\n'),
+);
 emit(') v where not exists (select 1 from public.company_documents);');
 emit();
 
@@ -366,6 +431,23 @@ emit('insert into public.partners_and_projects (kind, title_ar, title_en, locati
 emit('select * from (values');
 emit(pp.join(',\n'));
 emit(') v where not exists (select 1 from public.partners_and_projects);');
+emit();
+
+emit('-- PDF catalogs (only when the table is empty)');
+emit('insert into public.catalogs (slug, title_ar, title_en, description_ar, description_en, category_ar, category_en, brand, category_id, file_url, cover_url, page_count, file_size, sort_order)');
+emit('select slug, title_ar, title_en, description_ar, description_en, category_ar, category_en, brand, (select id from public.product_categories where slug = v.line), file_url, cover_url, page_count, file_size, sort_order from (values');
+emit(
+  catalogs
+    .map(
+      (c, i) =>
+        `  (${q(c.slug)}, ${q(c.title.ar)}, ${q(c.title.en)}, ${q(c.desc.ar)}, ${q(c.desc.en)}, ${q(c.category.ar)}, ${q(c.category.en)}, ${q(c.brand)}, ${q(c.line)}, ${q(c.file)}, ${q(c.cover)}, ${c.pages}, ${c.size}::bigint, ${i})`,
+    )
+    .join(',\n'),
+);
+emit(
+  ') v (slug, title_ar, title_en, description_ar, description_en, category_ar, category_en, brand, line, file_url, cover_url, page_count, file_size, sort_order)',
+);
+emit('where not exists (select 1 from public.catalogs);');
 emit();
 
 emit('commit;');

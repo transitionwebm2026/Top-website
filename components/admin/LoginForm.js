@@ -1,18 +1,25 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { useDocumentTitle, useSavedLang } from '@/components/providers/LanguageProvider';
 import { AdminContext, languageApi } from './AdminContext';
-import LangSwitch, { applyLang } from './LangSwitch';
+import LangSwitch from './LangSwitch';
 import { ErrorNote, Label, cx, inputCls } from './ui';
 
+/** Where to go after signing in: the `?next=` dashboard path, if it is one. */
+function nextPath() {
+  const next = new URLSearchParams(window.location.search).get('next');
+  return next && next.startsWith('/admin') && !next.startsWith('//') ? next : '/admin';
+}
+
 /** Email + password sign-in with Supabase Auth. Accounts are created by an admin (no public sign-up). */
-export default function LoginForm({ next = '/admin', configured = true, initialLang = 'ar' }) {
+export default function LoginForm({ configured = true }) {
   const router = useRouter();
-  const [lang, setLang] = useState(initialLang);
+  const [lang, setLang] = useSavedLang();
   const api = useMemo(() => languageApi(lang), [lang]);
   const { t, dir } = api;
   const [email, setEmail] = useState('');
@@ -21,10 +28,15 @@ export default function LoginForm({ next = '/admin', configured = true, initialL
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const changeLang = (l) => {
-    setLang(l);
-    applyLang(l);
-  };
+  useDocumentTitle(t('shell.tabTitle', { page: t('login.submit') }));
+
+  // Already signed in → straight to the dashboard (AdminGuard re-validates the session there).
+  useEffect(() => {
+    if (!configured) return;
+    createClient()
+      .auth.getSession()
+      .then(({ data }) => data.session && router.replace(nextPath()));
+  }, [configured, router]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -36,8 +48,7 @@ export default function LoginForm({ next = '/admin', configured = true, initialL
         setError(authError.message === 'Invalid login credentials' ? 'login.wrong' : authError.message);
         return;
       }
-      router.replace(next);
-      router.refresh();
+      router.replace(nextPath());
     } catch (err) {
       setError(err.message);
     } finally {
@@ -53,7 +64,7 @@ export default function LoginForm({ next = '/admin', configured = true, initialL
         <div className="grid-texture pointer-events-none absolute inset-0" />
 
         <div className="absolute end-4 top-4 sm:end-6 sm:top-6">
-          <LangSwitch lang={lang} onChange={changeLang} label={t('shell.language')} />
+          <LangSwitch lang={lang} onChange={setLang} label={t('shell.language')} />
         </div>
 
         <motion.div

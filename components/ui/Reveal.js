@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 
 const ease = [0.22, 1, 0.36, 1];
 
+// Opacity and movement only: a blur filter on whole sections costs phones a repaint every frame.
 export const fadeUp = {
-  hidden: { opacity: 0, y: 36, filter: 'blur(6px)' },
-  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.8, ease } },
+  hidden: { opacity: 0, y: 36 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease } },
 };
 
 /** Single element that fades/slides in when scrolled into view. */
@@ -15,8 +16,8 @@ export function Reveal({ children, delay = 0, y = 36, className, as = 'div', ...
   return (
     <Tag
       className={className}
-      initial={{ opacity: 0, y, filter: 'blur(6px)' }}
-      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.8, delay, ease }}
       {...rest}

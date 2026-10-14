@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  BookOpen,
   ExternalLink,
   Home,
   Info,
@@ -20,9 +21,10 @@ import {
   X,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { useDocumentTitle, useSavedLang } from '@/components/providers/LanguageProvider';
 import { AdminContext, languageApi } from './AdminContext';
 import { FeedbackProvider } from './feedback';
-import LangSwitch, { applyLang } from './LangSwitch';
+import LangSwitch from './LangSwitch';
 import { cx } from './ui';
 
 export const NAV = [
@@ -30,6 +32,7 @@ export const NAV = [
   { href: '/admin/home', label: 'nav.home', icon: Home },
   { href: '/admin/about', label: 'nav.about', icon: Info },
   { href: '/admin/products', label: 'nav.products', icon: ShoppingBag },
+  { href: '/admin/catalogs', label: 'nav.catalogs', icon: BookOpen },
   { href: '/admin/blogs', label: 'nav.blogs', icon: Newspaper },
   { href: '/admin/contact', label: 'nav.contact', icon: MessagesSquare, badge: 'messages' },
   { href: '/admin/settings', label: 'nav.settings', icon: Settings },
@@ -52,13 +55,14 @@ function writeStorage(key, value) {
   }
 }
 
-export default function AdminShell({ profile, initialLang = 'ar', children }) {
-  const pathname = usePathname();
-  const router = useRouter();
+export default function AdminShell({ profile, children }) {
+  // Without the trailing slash the static build adds (/admin/ → /admin), to match NAV hrefs.
+  const pathname = usePathname().replace(/(.)\/$/, '$1');
   const supabase = createClient();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [lang, setLangState] = useState(initialLang);
+  // One language for the dashboard UI, list previews and "View live site".
+  const [lang, setLang] = useSavedLang();
   const [newMessages, setNewMessages] = useState(0);
 
   useEffect(() => setCollapsed(readStorage(COLLAPSE_KEY) === '1'), []);
@@ -71,16 +75,6 @@ export default function AdminShell({ profile, initialLang = 'ar', children }) {
     });
   };
 
-  // One language for the dashboard UI, list previews and "View live site".
-  const setLang = useCallback(
-    (l) => {
-      setLangState(l);
-      applyLang(l);
-      router.refresh(); // server-rendered page titles follow the new language
-    },
-    [router],
-  );
-
   const refreshNewMessages = useCallback(async () => {
     const { count } = await supabase.from('contact_submissions').select('id', { count: 'exact', head: true }).eq('status', 'new');
     setNewMessages(count ?? 0);
@@ -90,11 +84,8 @@ export default function AdminShell({ profile, initialLang = 'ar', children }) {
     refreshNewMessages();
   }, [refreshNewMessages, pathname]);
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    router.replace('/admin/login');
-    router.refresh();
-  };
+  // AdminGuard sends the signed-out user to the login page.
+  const logout = () => supabase.auth.signOut();
 
   const ctx = useMemo(
     () => ({ profile, ...languageApi(lang), setLang, newMessages, refreshNewMessages }),
@@ -105,6 +96,7 @@ export default function AdminShell({ profile, initialLang = 'ar', children }) {
 
   const isActive = (item) => (item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`));
   const current = NAV.find(isActive);
+  useDocumentTitle(current && t('shell.tabTitle', { page: t(current.label) }));
 
   const navList = (compact) => (
     <nav className="flex flex-col gap-1">

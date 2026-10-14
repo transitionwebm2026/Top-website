@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image, { getImageProps } from 'next/image';
 import { useState } from 'react';
 import { useLang } from '@/components/providers/LanguageProvider';
 import ShapeIcon from './ShapeIcon';
@@ -15,10 +15,23 @@ import ShapeIcon from './ShapeIcon';
  * they sit on a light studio backdrop and are multiply-blended into it, so the
  * photo's own white/off-white rectangle disappears instead of showing edges.
  *
- * Product photos are served as-is (`unoptimized`): no optimizer round-trip on
- * each switch, and the URLs match what ProductPageView preloads. A spinner sits
- * behind the image until it loads.
+ * Photos are resized for `sizes` (lib/image-loader.js); preloadProductPhoto
+ * warms the browser cache with the very copy this component will pick. A
+ * spinner sits behind the image until it loads.
  */
+
+/** Downloads `src` at the size a `<ProductVisual sizes={sizes}>` picks, so showing it later is instant. */
+export function preloadProductPhoto(src, sizes) {
+  const { props } = getImageProps({ src, alt: '', fill: true, sizes });
+  const img = new window.Image();
+  // sizes + srcset before src: the browser chooses the same candidate as the real <img>.
+  if (props.srcSet) {
+    img.sizes = props.sizes;
+    img.srcset = props.srcSet;
+  }
+  img.src = props.src;
+}
+
 export default function ProductVisual({ src, alt = '', icon = 'pipe', fit = 'contain', sizes = '400px', className = '', imgClassName, hover = true, note = true }) {
   const { t } = useLang();
   const [loadedSrc, setLoadedSrc] = useState(null);
@@ -41,7 +54,6 @@ export default function ProductVisual({ src, alt = '', icon = 'pipe', fit = 'con
           src={src}
           alt={alt}
           fill
-          unoptimized
           sizes={sizes}
           onLoad={() => setLoadedSrc(src)}
           className={`transition-[transform,opacity] duration-700 ease-out ${loaded ? 'opacity-100' : 'opacity-0'} ${

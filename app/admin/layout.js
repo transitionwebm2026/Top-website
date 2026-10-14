@@ -1,19 +1,15 @@
-import { getLang } from '@/lib/lang';
+// Static titles are in the default language (Arabic); the dashboard localizes the tab title in the browser.
+export const metadata = {
+  title: {
+    default: 'لوحة التحكم',
+    template: '%s · لوحة تحكم توب باور',
+  },
+  robots: { index: false, follow: false },
+};
 
-export async function generateMetadata() {
-  const ar = (await getLang()) === 'ar';
-  return {
-    title: {
-      default: ar ? 'لوحة التحكم' : 'Control Panel',
-      template: ar ? '%s · لوحة تحكم توب باور' : '%s · TOP POWER Admin',
-    },
-    robots: { index: false, follow: false },
-  };
-}
-
-// Everything under /admin is gated by middleware.js (session) and by
-// app/admin/(dashboard)/layout.js (admin role). The dashboard follows the same
-// `tp-lang` cookie as the public site (Arabic by default).
+// Everything under /admin is gated in the browser by components/admin/AdminGuard.js
+// (session + admin role) and by RLS on every query. The dashboard follows the
+// same `tp-lang` cookie as the public site (Arabic by default).
 export default function AdminRootLayout({ children }) {
   return children;
 }

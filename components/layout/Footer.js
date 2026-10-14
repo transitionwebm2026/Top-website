@@ -15,7 +15,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-10 border-t border-gold/20 bg-gradient-to-b from-emerald-night/60 to-emerald-ink backdrop-blur-xl">
+    <footer className="relative mt-10 border-t border-gold/20 bg-gradient-to-b from-emerald-night/60 to-emerald-ink">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
       <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr_1.2fr] lg:px-8">
         <div className="flex flex-col gap-5">

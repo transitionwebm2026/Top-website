@@ -1,15 +1,21 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpLeft, ArrowUpRight, CalendarDays, Clock } from 'lucide-react';
 import { useLang } from '@/components/providers/LanguageProvider';
+import { whenIdle } from '@/lib/idle';
 import GlassCard from '@/components/ui/GlassCard';
 import Modal from '@/components/ui/Modal';
 import SectionHeading from '@/components/ui/SectionHeading';
 import { Reveal, Stagger, StaggerItem } from '@/components/ui/Reveal';
-import ArticleBody from './ArticleBody';
+
+// The Markdown renderer is only needed inside an opened article: it is kept out
+// of the page's initial JavaScript and fetched once the page is idle.
+const loadArticleBody = () => import('./ArticleBody');
+const ArticleBody = dynamic(loadArticleBody);
 
 function useFormatDate() {
   const { lang } = useLang();
@@ -70,6 +76,7 @@ function ArticleModal({ article, onClose }) {
 export default function BlogView({ articles = [], gridHeading }) {
   const { t, pick, isRTL } = useLang();
   const [open, setOpen] = useState(null);
+  useEffect(() => whenIdle(() => loadArticleBody().catch(() => {}), 3000), []);
   // Fall back to the newest article when none is marked as hero.
   const featured = articles.find((a) => a.featured) || articles[0];
   const rest = articles.filter((a) => a !== featured);

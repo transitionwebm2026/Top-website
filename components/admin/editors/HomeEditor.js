@@ -62,7 +62,7 @@ const TABS = [
   { id: 'hero', label: { en: 'Hero Section', ar: 'الواجهة الرئيسية' }, sections: ['hero_section'] },
   { id: 'about', label: { en: 'About Summary', ar: 'نبذة عن الشركة' }, sections: ['about_summary'] },
   { id: 'bento', label: { en: 'Product Bento Grid', ar: 'شبكة المنتجات' }, sections: ['bento_grid'], render: () => <BentoCategories /> },
-  { id: 'partners', label: { en: 'Partners Marquee', ar: 'شريط الشركاء' }, sections: ['partners_marquee'], render: () => <PartnersManager /> },
+  { id: 'partners', label: { en: 'Partner Logos', ar: 'شعارات الشركاء' }, sections: ['partners_marquee'], render: () => <PartnersManager /> },
   { id: 'projects', label: { en: 'Key Projects', ar: 'أهم المشاريع' }, sections: ['key_projects'], render: () => <ProjectsManager /> },
   { id: 'cta', label: { en: 'Pre-footer CTA', ar: 'دعوة التواصل' }, sections: ['pre_footer_cta'] },
 ];
