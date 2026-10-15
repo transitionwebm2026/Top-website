@@ -28,7 +28,7 @@ export default function PreFooterCTA({ content }) {
             <h2 className="mx-auto max-w-3xl text-3xl font-black text-balance sm:text-5xl">
               <span className="text-gold-gradient">{c.title}</span>
             </h2>
-            {c.description && <p className="mx-auto mt-5 max-w-2xl text-lg text-white/70">{c.description}</p>}
+            {c.description && <p className="mx-auto mt-5 max-w-2xl text-lg whitespace-pre-line text-white/70">{c.description}</p>}
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               {whatsapp && (
                 <MagneticButton href={waHref()} external variant="whatsapp">

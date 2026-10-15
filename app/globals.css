@@ -35,6 +35,11 @@
   --animate-hero-zoom: hero-zoom 18s linear infinite alternate;
   --animate-hero-settle: hero-settle 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-sheen: sheen 16s linear infinite;
+  --animate-ring-spin: ring-spin 40s linear infinite;
+
+  @keyframes ring-spin {
+    to { transform: rotate(360deg); }
+  }
 
   @keyframes hero-zoom {
     from { transform: scale(1.05); }

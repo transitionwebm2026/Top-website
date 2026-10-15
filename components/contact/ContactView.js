@@ -133,7 +133,7 @@ export default function ContactView({ content }) {
           <GlassCard strong synced={hover} {...hoverProps} className="h-full p-6 sm:p-10">
             <div className="relative z-10">
               <h2 className="text-2xl font-black sm:text-3xl">{copy.form_title}</h2>
-              {copy.form_description && <p className="mt-2 text-white/60">{copy.form_description}</p>}
+              {copy.form_description && <p className="mt-2 whitespace-pre-line text-white/60">{copy.form_description}</p>}
 
               <form onSubmit={onSubmit} onFocus={() => loadSender().catch(() => {})} noValidate className="mt-8 grid gap-4 sm:grid-cols-2">
                 {fields.map((f) => (

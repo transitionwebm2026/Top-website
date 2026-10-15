@@ -182,6 +182,18 @@ const icons = {
       <Sprinkler />
     </g>
   ),
+  // Sprinkler recessed above the ceiling behind a flat cover plate.
+  concealed: () => (
+    <g stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="25" y="6" width="14" height="10" rx="1.5" />
+      <path d="M26 9.5h12M26 12.5h12" strokeWidth="1.2" />
+      <path d="M18 16 H46 V36 H18 Z" fill="currentColor" fillOpacity="0.12" />
+      <ellipse cx="32" cy="26" rx="2.5" ry="6" fill={RED} stroke={RED} />
+      <path d="M4 36 H18 M46 36 H60" strokeWidth="3" />
+      <path d="M6 36 l4 -6 M12 36 l4 -6 M50 36 l4 -6 M56 36 l4 -6" strokeWidth="1.4" />
+      <rect x="12" y="38" width="40" height="5" rx="2.5" fill="currentColor" />
+    </g>
+  ),
   sprinkler: () => <Sprinkler />,
   fitting: () => <Piped d="M20 60 V38 Q20 20 38 20 H60" />,
 };

@@ -166,8 +166,8 @@ const meta = {
     path: '/catalog',
     title: { ar: 'الكتالوج', en: 'Catalog' },
     desc: {
-      ar: 'تصفح كتالوجات رشاشات الحريق والمواسير من المصانع العالمية التي تمثلها توب باور، أو حمّلها بصيغة PDF.',
-      en: 'Browse fire sprinkler and pipe catalogs from the manufacturers TOP POWER represents, or download them as PDF.',
+      ar: 'تصفح كتالوجات المواسير والوصلات والمحابس ورشاشات الحريق من المصانع العالمية التي تمثلها توب باور، أو حمّلها بصيغة PDF.',
+      en: 'Browse pipe, fitting, valve and fire sprinkler catalogs from the manufacturers TOP POWER represents, or download them as PDF.',
     },
   },
 };
@@ -216,7 +216,10 @@ const sections = {
         title_prefix: '15+',
         title: T(l).home.expTitle,
         description: T(l).home.expDesc,
-        ring_text: 'FIRE SAFETY · MEP SOLUTIONS · UL · FM · NFPA · SINCE 20 YEARS ·',
+        ring_text:
+          l === 'ar'
+            ? 'السلامة من الحريق · 15 سنة خبرة · UL · FM · NFPA · حلول MEP متكاملة ·'
+            : 'FIRE SAFETY · MEP SOLUTIONS · UL · FM · NFPA · 15 YEARS OF EXPERTISE ·',
         stats: T(l).home.stats,
       })),
     ],

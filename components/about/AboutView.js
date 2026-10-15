@@ -62,7 +62,7 @@ function Timeline({ content }) {
                       {String(i + 1).padStart(2, '0')} · {step.year}
                     </span>
                     <h3 className="relative z-10 mt-2 text-xl font-extrabold sm:text-2xl">{step.title}</h3>
-                    <p className="relative z-10 mt-3 leading-relaxed text-white/65">{step.text}</p>
+                    <p className="relative z-10 mt-3 leading-relaxed whitespace-pre-line text-white/65">{step.text}</p>
                   </GlassCard>
                 </div>
               </Reveal>
@@ -132,7 +132,7 @@ function MissionGoals({ content }) {
                   {items.map((it, i) => (
                     <StaggerItem key={i} className="flex gap-4 rounded-2xl border border-gold/10 bg-white/[0.03] p-5">
                       <span className="mt-2 h-2 w-2 shrink-0 rotate-45 bg-gold" />
-                      <p className="leading-relaxed text-white/80">{it.text}</p>
+                      <p className="leading-relaxed whitespace-pre-line text-white/80">{it.text}</p>
                     </StaggerItem>
                   ))}
                 </Stagger>
@@ -188,58 +188,89 @@ function DocumentsGallery({ content, documents, codes = [] }) {
     <section className="px-4 py-24 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading eyebrow={c.eyebrow} title={c.title} desc={c.description} />
-        {/* Rows of three (two on tablets), every second document set a little lower */}
-        <Stagger as="ul" className="mt-14 flex flex-wrap justify-center gap-x-6 gap-y-8 sm:gap-y-20 sm:pb-12" gap={0.1}>
+        {/*
+          Rows of two. On desktop each card lies on its side and the pair mirrors around a gold
+          thread: previews on the outer edges, texts facing each other. An odd last document is
+          centred on its own row.
+        */}
+        <Stagger as="ul" className="mt-14 grid gap-6 sm:grid-cols-2 lg:gap-x-16 lg:gap-y-10" gap={0.1}>
           {documents.map((d, i) => {
             const seal = sealFor(d);
             const pdf = isPdf(d.file);
+            const second = i % 2 === 1;
+            const lone = !second && i === documents.length - 1;
             return (
-              <StaggerItem as="li" key={d.id} className={`w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc((100%-3rem)/3)] ${i % 2 ? 'sm:translate-y-12' : ''}`}>
+              <StaggerItem
+                as="li"
+                key={d.id}
+                className={`relative ${lone ? 'sm:col-span-2 sm:mx-auto sm:w-[calc(50%-0.75rem)] lg:w-[calc(50%-2rem)]' : ''}`}
+              >
+                {/* The thread between a pair, with a diamond at its middle */}
+                {!second && !lone && (
+                  <span aria-hidden className="pointer-events-none absolute inset-y-0 -end-8 hidden w-0 place-items-center lg:grid">
+                    <span className="col-start-1 row-start-1 h-full w-px bg-gradient-to-b from-transparent via-gold/45 to-transparent" />
+                    <span className="col-start-1 row-start-1 h-3 w-3 rotate-45 border border-gold bg-emerald-ink shadow-[0_0_14px_rgba(205,176,116,0.6)]" />
+                  </span>
+                )}
                 <GlassCard
                   as="button"
                   type="button"
                   onClick={() => open(d)}
                   onPointerEnter={pdf ? preloadReader : undefined}
-                  className="group flex h-full w-full flex-col p-4 text-start hover:-translate-y-2"
+                  className={`group flex h-full w-full flex-col gap-5 p-4 text-start hover:-translate-y-2 lg:gap-7 lg:p-5 ${second ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}
                 >
-                  <span className="relative z-10 block w-full rounded-[18px] bg-gradient-to-br from-gold-light/70 via-gold/20 to-gold-dark/70 p-px shadow-[0_24px_50px_-24px_rgba(0,0,0,0.9)]">
-                    <span className="relative block aspect-[4/3] overflow-hidden rounded-[17px] bg-white">
+                  <span className="relative z-10 block w-full shrink-0 rounded-[18px] bg-gradient-to-br from-gold-light/70 via-gold/20 to-gold-dark/70 p-px shadow-[0_24px_50px_-24px_rgba(0,0,0,0.9)] lg:w-[44%]">
+                    <span className="relative block aspect-[4/3] overflow-hidden rounded-[17px] bg-emerald-night lg:aspect-[4/5]">
                       {d.image ? (
-                        <Image
-                          src={d.image}
-                          alt={pick(d.title)}
-                          fill
-                          sizes="(max-width:640px) 92vw, (max-width:1024px) 46vw, 420px"
-                          className={`object-cover transition duration-700 group-hover:scale-110 ${d.type === 'certificate' ? 'object-top' : ''}`}
-                        />
+                        <>
+                          {/* The whole document over a blurred copy of itself, whatever its shape */}
+                          <Image src={d.image} alt="" aria-hidden fill sizes="(max-width:640px) 92vw, (max-width:1024px) 46vw, 300px" className="scale-125 object-cover opacity-35 blur-xl" />
+                          <Image
+                            src={d.image}
+                            alt={pick(d.title)}
+                            fill
+                            sizes="(max-width:640px) 92vw, (max-width:1024px) 46vw, 300px"
+                            className="object-contain p-3 drop-shadow-[0_12px_20px_rgba(0,0,0,0.55)] transition duration-700 group-hover:scale-105"
+                          />
+                        </>
                       ) : (
-                        <span className="grid h-full place-items-center bg-emerald-night text-gold">
+                        <span className="grid h-full place-items-center text-gold">
                           <FileDown size={56} strokeWidth={1.2} />
                         </span>
                       )}
-                      <span className="absolute inset-0 grid place-items-center bg-emerald-ink/0 transition group-hover:bg-emerald-ink/50">
-                        {pdf ? (
-                          <BookOpen className="scale-50 text-gold opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100" size={34} />
-                        ) : (
-                          <Maximize2 className="scale-50 text-gold opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100" size={34} />
-                        )}
+                    </span>
+                  </span>
+
+                  <span className="relative z-10 flex flex-1 flex-col lg:py-2">
+                    <span className="flex items-start justify-between gap-4">
+                      <span
+                        aria-hidden
+                        className="font-[family-name:var(--font-montserrat)] text-5xl leading-none font-black text-transparent [-webkit-text-stroke:1px_rgba(205,176,116,0.55)]"
+                      >
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      {/* Issuer seal of a certificate */}
+                      {seal && (
+                        <span className="shrink-0 drop-shadow-[0_10px_16px_rgba(0,0,0,0.6)] transition duration-500 group-hover:rotate-6">
+                          <span className="hex-clip-v grid h-[3.6rem] w-[3.2rem] place-items-center bg-gradient-to-br from-gold-light via-gold to-gold-dark">
+                            <span className="hex-clip-v grid h-[3.2rem] w-[2.85rem] place-items-center bg-emerald-deep">
+                              <span dir="ltr" className="font-[family-name:var(--font-montserrat)] text-sm font-black text-gold">
+                                {seal}
+                              </span>
+                            </span>
+                          </span>
+                        </span>
+                      )}
+                    </span>
+                    <span className="mt-5 h-px w-14 bg-gold/50 transition-[width] duration-500 group-hover:w-24" />
+                    <h3 className="mt-4 text-lg font-bold lg:text-xl">{pick(d.title)}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/55">{pick(d.desc)}</p>
+                    <span className="mt-auto pt-5">
+                      <span className="grid h-11 w-11 place-items-center rounded-full border border-gold/40 text-gold transition duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-emerald-ink">
+                        {pdf ? <BookOpen size={18} /> : <Maximize2 size={18} />}
                       </span>
                     </span>
                   </span>
-                  {/* Issuer seal on a certificate's corner */}
-                  {seal && (
-                    <span className="absolute -end-3 -top-4 z-20 drop-shadow-[0_10px_16px_rgba(0,0,0,0.6)] transition duration-500 group-hover:rotate-6">
-                      <span className="hex-clip-v grid h-[3.6rem] w-[3.2rem] place-items-center bg-gradient-to-br from-gold-light via-gold to-gold-dark">
-                        <span className="hex-clip-v grid h-[3.2rem] w-[2.85rem] place-items-center bg-emerald-deep">
-                          <span dir="ltr" className="font-[family-name:var(--font-montserrat)] text-sm font-black text-gold">
-                            {seal}
-                          </span>
-                        </span>
-                      </span>
-                    </span>
-                  )}
-                  <h3 className="relative z-10 mt-4 text-lg font-bold">{pick(d.title)}</h3>
-                  <p className="relative z-10 mt-1 text-sm leading-relaxed text-white/55">{pick(d.desc)}</p>
                 </GlassCard>
               </StaggerItem>
             );

@@ -114,7 +114,7 @@ export default function Hero({ content, zoom = false, compact = false, badges = 
           </h1>
 
           {copy.description && (
-            <p className="mt-6 max-w-2xl animate-rise text-lg leading-relaxed text-white/75 sm:text-xl" style={delay(0.3)}>
+            <p className="mt-6 max-w-2xl animate-rise text-lg leading-relaxed whitespace-pre-line text-white/75 sm:text-xl" style={delay(0.3)}>
               {copy.description}
             </p>
           )}

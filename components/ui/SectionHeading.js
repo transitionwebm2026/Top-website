@@ -20,7 +20,7 @@ export default function SectionHeading({ eyebrow, title, desc, align = 'center',
       </Reveal>
       {desc && (
         <Reveal delay={0.16}>
-          <p className="text-base leading-relaxed text-white/65 sm:text-lg">{desc}</p>
+          <p className="text-base leading-relaxed whitespace-pre-line text-white/65 sm:text-lg">{desc}</p>
         </Reveal>
       )}
     </div>

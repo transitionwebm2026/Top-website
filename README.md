@@ -42,7 +42,10 @@ link previews need absolute image URLs, and a static page has no request host to
    `…_contact_attachments.sql` adds contact-form attachments (private `contact-attachments` bucket);
    `…_catalogs.sql` adds the `/catalog` page and its `catalogs` table, and puts a *Catalog* link after
    *Products* in the navbar and footer; `…_articles.sql` adds five product articles (seamless pipes, Sch 40 vs
-   Sch 80, malleable iron fittings, MECH valves, fire sprinklers) to the blog. Each file is safe to re-run.
+   Sch 80, malleable iron fittings, MECH valves, fire sprinklers) to the blog; `…_mech_catalogs_certificates.sql`
+   adds the MECH seamless pipe, malleable fittings and fire valve catalogs and the UL/FM check valve certificates;
+   `…_experience_ring.sql` gives the home page's rotating ring around the 15+ badge its Arabic and English text.
+   Each file is safe to re-run.
 2. **Default content** — run `supabase/seed.sql`. Idempotent: re-running never overwrites dashboard edits.
 3. **First admin** — create the user in *Authentication → Users → Add user* (auto-confirm), then:
    ```sql

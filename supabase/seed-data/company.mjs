@@ -175,4 +175,26 @@ export const documents = [
       en: 'British Standard malleable iron fittings — approval ID 3038663',
     },
   },
+  {
+    id: 'ul-check-valves',
+    type: 'certificate',
+    image: '/images/docs/ul-check-valves.jpg',
+    file: '/certificates/ul-check-valves.pdf',
+    title: { ar: 'شهادة مطابقة UL', en: 'UL Certificate of Compliance' },
+    desc: {
+      ar: 'محابس عدم الرجوع لأنظمة الحريق (H44X2 وH84X وDH77XSR) وفق UL 312 — شهادة رقم EX16203',
+      en: 'Fire-protection check valves (H44X2, H84X, DH77XSR) to UL 312 — certificate no. EX16203',
+    },
+  },
+  {
+    id: 'fm-check-valves',
+    type: 'certificate',
+    image: '/images/docs/fm-swing-check-valves.jpg',
+    file: '/certificates/fm-swing-check-valves.pdf',
+    title: { ar: 'شهادة اعتماد FM', en: 'FM Approvals Certificate of Compliance' },
+    desc: {
+      ar: 'محابس عدم الرجوع المتأرجحة H44X2 وH44X2A وH84X وH84XF4 — رقم الاعتماد PR456599',
+      en: 'Swing check valves H44X2, H44X2A, H84X and H84XF4 — approval ID PR456599',
+    },
+  },
 ];
